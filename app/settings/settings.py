@@ -12,8 +12,10 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 import os
 from pathlib import Path
 
-import dotenv
 from django.urls import reverse_lazy
+
+import dotenv
+
 
 dotenv.load_dotenv('../env/.env')
 

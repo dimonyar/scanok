@@ -1,5 +1,5 @@
-from accounts.forms import SignUpForm, DeviceForm
-from accounts.models import User, Device
+from accounts.forms import DeviceForm, SignUpForm
+from accounts.models import Device, User
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin

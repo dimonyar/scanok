@@ -5,7 +5,6 @@ from sqlalchemy.orm import relationship
 
 from sqlalchemy_utils import ChoiceType
 
-
 Base = declarative_base()
 
 
@@ -44,7 +43,7 @@ class Barcode(Base):
 class BarcodeImages(Base):
     __tablename__ = 'BarcodeImages'
 
-    id = Column(BigInteger, autoincrement=True, primary_key=True)   # noqa: VNE003, A003
+    id = Column(BigInteger, autoincrement=True, primary_key=True)  # noqa: VNE003, A003
     BarcodeName = Column(String(127), ForeignKey('Barcode.BarcodeName'), nullable=False)
     Image = Column(IMAGE, nullable=False)
     MainImage = Column(Boolean, nullable=False)
@@ -107,7 +106,7 @@ class Cell(Base):
 class PriceAndRemains(Base):
     __tablename__ = 'PriceAndRemains'
 
-    id = Column(BigInteger, autoincrement=True, primary_key=True)   # noqa: VNE003, A003
+    id = Column(BigInteger, autoincrement=True, primary_key=True)  # noqa: VNE003, A003
     GoodF = Column(String(30), ForeignKey('Good.GoodF'), nullable=False)
     StoreF = Column(String(50), ForeignKey('Stores.StoreF'), nullable=False)
     Price = Column(Float, nullable=False)
@@ -125,7 +124,7 @@ class PriceAndRemains(Base):
 class SalesReceipts(Base):
     __tablename__ = 'SalesReceipts'
 
-    id = Column(BigInteger, autoincrement=True, primary_key=True)   # noqa: VNE003, A003
+    id = Column(BigInteger, autoincrement=True, primary_key=True)  # noqa: VNE003, A003
     NameDocu = Column(String(50), nullable=False)
     DocHeadF = Column(UNIQUEIDENTIFIER, nullable=False)
     CashierName = Column(String(50), nullable=False)
@@ -144,7 +143,7 @@ class SalesReceipts(Base):
     Discount = Column(Float, nullable=False)
     StoreF = Column(String(50), nullable=True)
     UnitPriceDiscount = Column(Float, nullable=False)
-    colProduct = Column(Float, nullable=False)
+    colProduct = Column(Float, nullable=False)  # noqa: N815
     PositionAmount = Column(Float, nullable=False)
     PositionDiscount = Column(Float, nullable=False)
     CheckAmount = Column(Float, nullable=False)
@@ -163,13 +162,13 @@ class SalesReceipts(Base):
 class ScanHistory(Base):
     __tablename__ = 'ScanHistory'
 
-    id = Column(BigInteger, autoincrement=True, primary_key=True)
+    id = Column(BigInteger, autoincrement=True, primary_key=True)   # noqa: VNE003, A003
     Bad_price = Column(BIT, nullable=False)
     Change_history = Column(BIT, nullable=False)
     Hend_enter = Column(BIT, nullable=False)
     Count = Column(Float, nullable=False)
     DocDetailsF = Column(UNIQUEIDENTIFIER, ForeignKey('DocDetails.DocDetailsF'), nullable=False)
-    lastChanged = Column(DATETIME2, nullable=False)
+    lastChanged = Column(DATETIME2, nullable=False)  # noqa: N815
     UserF = Column(BigInteger, nullable=False)
     Price_problem = Column(BIT, nullable=False)
     Comment = Column(String, nullable=True)
@@ -180,7 +179,7 @@ class ScanHistory(Base):
     GoodF = Column(String(30), nullable=False)
     Expiration = Column(Float, nullable=False)
     Have_comment = Column(BIT, nullable=False)
-    idPos = Column(UNIQUEIDENTIFIER, nullable=False)
+    idPos = Column(UNIQUEIDENTIFIER, nullable=False)  # noqa: N815
     Field_1 = Column(String(100), nullable=True)
     Field_2 = Column(String(50), nullable=True)
     Field_3 = Column(String(20), nullable=True)
