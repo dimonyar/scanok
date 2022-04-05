@@ -1,10 +1,8 @@
-from settings.settings import database, password, port, server, user
-
-from sqlalchemy import BigInteger, Boolean, Column, DateTime, Float, ForeignKey, Integer, MetaData, SmallInteger, String, Table
-from sqlalchemy import create_engine
+from sqlalchemy import BigInteger, Boolean, Column, DateTime, Float, ForeignKey, Integer, SmallInteger, String
 from sqlalchemy.dialects.mssql import BIT, DATETIME2, IMAGE, SMALLINT, UNIQUEIDENTIFIER
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
+
 from sqlalchemy_utils import ChoiceType
 
 
@@ -14,7 +12,6 @@ Base = declarative_base()
 class Good(Base):
     __tablename__ = 'Good'
 
-    # id = Column(BigInteger, autoincrement=True, nullable=False)
     GoodF = Column(String(30), primary_key=True, nullable=False)
     Name = Column(String(300), nullable=False)
     Price = Column(Float, nullable=False)
@@ -47,7 +44,7 @@ class Barcode(Base):
 class BarcodeImages(Base):
     __tablename__ = 'BarcodeImages'
 
-    id = Column(BigInteger, autoincrement=True, primary_key=True)
+    id = Column(BigInteger, autoincrement=True, primary_key=True)   # noqa: VNE003, A003
     BarcodeName = Column(String(127), ForeignKey('Barcode.BarcodeName'), nullable=False)
     Image = Column(IMAGE, nullable=False)
     MainImage = Column(Boolean, nullable=False)
@@ -58,7 +55,6 @@ class BarcodeImages(Base):
 class Partners(Base):
     __tablename__ = 'Partners'
 
-    # id = Column(BigInteger, autoincrement=True, nullable=False)
     PartnerF = Column(String(50), primary_key=True, nullable=False)
     NamePartner = Column(String(50), nullable=False)
     Deleted = Column(BIT, nullable=False)
@@ -111,7 +107,7 @@ class Cell(Base):
 class PriceAndRemains(Base):
     __tablename__ = 'PriceAndRemains'
 
-    id = Column(BigInteger, autoincrement=True, primary_key=True)
+    id = Column(BigInteger, autoincrement=True, primary_key=True)   # noqa: VNE003, A003
     GoodF = Column(String(30), ForeignKey('Good.GoodF'), nullable=False)
     StoreF = Column(String(50), ForeignKey('Stores.StoreF'), nullable=False)
     Price = Column(Float, nullable=False)
@@ -129,7 +125,7 @@ class PriceAndRemains(Base):
 class SalesReceipts(Base):
     __tablename__ = 'SalesReceipts'
 
-    id = Column(BigInteger, autoincrement=True, primary_key=True)
+    id = Column(BigInteger, autoincrement=True, primary_key=True)   # noqa: VNE003, A003
     NameDocu = Column(String(50), nullable=False)
     DocHeadF = Column(UNIQUEIDENTIFIER, nullable=False)
     CashierName = Column(String(50), nullable=False)

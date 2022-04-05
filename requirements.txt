@@ -1,5 +1,5 @@
 django
-python -m pip install django-debug-toolbar
+django-debug-toolbar
 django-extensions
 
 

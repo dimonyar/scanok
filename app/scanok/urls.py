@@ -1,6 +1,5 @@
-from scanok import views as scanok_views
-
 from django.urls import path
+from scanok import views as scanok_views
 
 app_name = 'scanok'
 

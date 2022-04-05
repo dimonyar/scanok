@@ -1,13 +1,4 @@
-# from scanok.sqlclasstable import Partners
-# from wtforms_alchemy import ModelForm, QuerySelectField
 from django import forms
-# from scanok import model_choices as mch
-#
-#
-# class PartnerForm(forms.ModelForm):
-#     class Meta:
-#         model = Partners
-#         fields = ('PartnerF', 'NamePartner', 'Discount')
 
 
 class PartnerForm(forms.Form):
@@ -22,8 +13,3 @@ class TerminalBase(forms.Form):
         ('cb6321f3a9b155db5f1c42c322efd47b', 'cb6321f3a9b155db5f1c42c322efd47b'),
     )
     Base = forms.ChoiceField(choices=SerialNumber)
-
-
-
-
-
