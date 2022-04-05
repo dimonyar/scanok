@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Users{% endblock %}
+
+{% block content %}
+
+<table border="1">
+    <col width="50" valign="top" align="left">
+    <col width="300" valign="top" align="left">
+    <col width="300" valign="top" align="left">
+    <col width="300" valign="top" align="left">
+
+{% for row in users_list %}
+    {% if row.UserF == -1 %}
+        <!-- continue -->
+    {% else %}
+        <tr>
+            <td>{{row.UserF}}</td>
+            <td>{{row.Name}}</td>
+            <td>{{row.Login}}</td>
+            <td>{{row.Password}}</td>
+        </tr>
+    {% endif %}
+{% endfor %}
+
+</table>
+
+{% endblock content %}

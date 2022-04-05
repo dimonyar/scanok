@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load extra_teg %}
+
+{% block title %}DocHead{% endblock %}
+
+{% block content %}
+
+<table border="1">
+    <col width="50" valign="top" align="left">
+    <col width="500" valign="top" align="left">
+    <col width="100" valign="top" align="left">
+    <col width="100" valign="top" align="left">
+    <col width="100" valign="top" align="left">
+
+{% for row in dochead_list %}
+
+        <tr>
+            <td>
+                {{ row.DocType }}
+            </td>
+            <td>{{row.Comment}}</td>
+            <td>{{row.NamePartner}}</td>
+            <td>
+                {{ row.CreateDate|tact_to_data }}
+                </td>
+            <td>{{row.DocStatus}}</td>
+            <td>{{row.NameStore}}</td>
+        </tr>
+{% endfor %}
+
+</table>
+
+{% endblock content %}

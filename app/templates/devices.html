@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Devices{% endblock %}
+
+{% block content %}
+
+<div>
+    <p>
+        <form action="{% url 'accounts:device_create' %}">
+            <button>Create</button>
+        </form>
+    </p>
+</div>
+
+
+<table border="1">
+
+{% for row in devices_list %}
+    <tr>
+        <td width="300" valign="top" align="left">{{row.name}}</td>
+        <td width="300" valign="top" align="left">{{row.pseudonym}}</td>
+        <td width="150" valign="top" align="left">{{row.created|date:"d-m-Y h:m:s"}}</td>
+    </tr>
+{% endfor %}
+
+</table>
+
+{% endblock content %}

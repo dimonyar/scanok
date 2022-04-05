@@ -1,16 +1,19 @@
 from django.contrib import admin
-from django.urls import path
-
-from scanok.views import dochead, goods, partners, start,  stores, user
+from django.urls import include, path
+from django.views.generic import TemplateView
 
 
 urlpatterns = [
+    path('auth/', include('django.contrib.auth.urls')),
     path('admin/', admin.site.urls),
-    path('', start),
-    path('goods/', goods),
-    path('stores/', stores),
-    path('user/', user),
-    path('partners/', partners),
-    path('dochead/', dochead),
+    path('', TemplateView.as_view(template_name='index.html'), name='index'),
+    path('scanok/', include('scanok.urls')),
+    path('check-email/', TemplateView.as_view(template_name='activation.html'), name='check-email'),
+
+    path('accounts/', include('django.contrib.auth.urls')),
+    path('accounts/', include('accounts.urls')),
+
+
+    path('__debug__/', include('debug_toolbar.urls'))
 
 ]

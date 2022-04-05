@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p}}
+    <button type="submit">Ok</button>
+</form>
+<h1>Home</h1>
+<div>
+    Welcome to Scanok
+</div>
+
+{% endblock content %}

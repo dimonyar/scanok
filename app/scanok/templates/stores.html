@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Stores{% endblock %}
+
+{% block content %}
+
+<table border="1">
+
+{% for row in stores_list %}
+    <tr>
+        <td width="50" valign="top" align="left">{{row.StoreF}}</td>
+        <td width="300" valign="top" align="left">{{row.NameStore}}</td>
+    </tr>
+{% endfor %}
+
+</table>
+
+{% endblock content %}
