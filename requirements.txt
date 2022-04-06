@@ -1,4 +1,5 @@
 django
+django-crum
 django-debug-toolbar
 django-extensions
 
@@ -24,3 +25,5 @@ sqlalchemy-utils
 pymssql
 python-dotenv==0.19.2
 WTForms-SQLAlchemy
+
+

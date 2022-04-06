@@ -16,6 +16,7 @@
 
 {% for row in devices_list %}
     <tr>
+        <td width="300" valign="top" align="left">{{row.user_id}}</td>
         <td width="300" valign="top" align="left">{{row.name}}</td>
         <td width="300" valign="top" align="left">{{row.pseudonym}}</td>
         <td width="150" valign="top" align="left">{{row.created|date:"d-m-Y h:m:s"}}</td>

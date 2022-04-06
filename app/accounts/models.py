@@ -1,5 +1,7 @@
 import uuid
 
+from crum import get_current_user
+
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
@@ -22,3 +24,8 @@ class Device(models.Model):
     name = models.CharField(max_length=50)
     pseudonym = models.CharField(max_length=50)
     created = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        value = get_current_user().id
+        self.user_id = value
+        super(Device, self).save(*args, **kwargs)
