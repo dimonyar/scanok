@@ -1,6 +1,6 @@
 <nav>
     {% if request.user.is_authenticated %}
-        {{ request.user.first_name|default:"nothing" }} {{ request.user.last_name|default:"nothing" }} <br>
+        {{ request.user.id }}{{ request.user.first_name }} {{ request.user.last_name }} <br>
         <button onclick="location.href='{% url 'accounts:my-profile' %}'">My Profile</button>
         <button onclick="location.href='{% url 'logout' %}'">Log Out</button>
     {% else %}
