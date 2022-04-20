@@ -1,18 +1,45 @@
-<nav>
-    {% if request.user.is_authenticated %}
-        {{ request.user.first_name|default:"nothing" }} {{ request.user.last_name|default:"nothing" }} <br>
-        <button onclick="location.href='{% url 'accounts:my-profile' %}'">My Profile</button>
-        <button onclick="location.href='{% url 'logout' %}'">Log Out</button>
-    {% else %}
-        <button onclick="location.href='{% url 'accounts:signup' %}'">Sign Up</button>
-        <button onclick="location.href='{% url 'login' %}'">Log In</button>
-    {% endif %}
-<br>
-    <a href="{% url 'index' %}">Home</a>  |
-    <a href="{% url 'accounts:devices' %}">Devices</a>  |
-    <a href="{% url 'scanok:goods' %}">goods</a>  |
-    <a href="{% url 'scanok:stores' %}">stores</a>  |
-    <a href="{% url 'scanok:users' %}">users</a>  |
-    <a href="{% url 'scanok:partners' %}">partners</a> |
-    <a href="{% url 'scanok:dochead' %}">dochead</a>
+{% load static %}
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText"
+                aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="{% url 'index' %}">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'accounts:devices' %}">Devices</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'scanok:goods' %}">Goods</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'scanok:stores' %}">Stores</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'scanok:users' %}">Users</a>
+                </li>
+                 <li class="nav-item">
+                    <a class="nav-link" href="{% url 'scanok:partners' %}">Partners</a>
+                </li>
+                 <li class="nav-item">
+                    <a class="nav-link" href="{% url 'scanok:dochead' %}">DocHead</a>
+                </li>
+            </ul>
+            <span class="ml-auto">
+            {% if request.user.is_authenticated %}
+                <img src="{{ request.user.avatar_url }}" width="30" height="30" class="rounded-circle">
+
+                <a href="{% url 'accounts:my-profile' %}" class="btn btn-outline-dark">My Profile</a>
+                <a href="{% url 'logout' %}" class="btn btn-outline-dark">Logout</a>
+            {% else %}
+                <a href="{% url 'accounts:signup' %}" class="btn btn-outline-dark">Sign Up</a>
+                <a href="{% url 'login' %}" class="btn btn-outline-dark">Login</a>
+            {% endif %}
+            </span>
+        </div>
+    </div>
 </nav>

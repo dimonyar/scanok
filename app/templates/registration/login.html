@@ -1,18 +1,23 @@
-{% extends 'base.html' %}
-{% block title %}Login{% endblock %}
-{% block content %}
+{% load widget_tweaks %}
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign In</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+<h1>Login</h1>
+<div id="wrapper">
+	<form id="signin" method="post" action="" autocomplete="off">
+        {% csrf_token %}
+        {{ form.username|attr:"placeholder=Email" }}
+        {{ form.password|attr:"placeholder=Password" }}
+		<button type="submit">&#xf0da;</button>
+		<p>forgot your password? <a href="{% url 'password_reset' %}">click here</a></p>
+	</form>
+</div>
 
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Login</button>
-    <br>
-    <br>
-    <p><a href="{% url 'password_reset' %}">Forgot your password?</a></p>
-
-
-</form>
-
-
-
-{% endblock content %}
+</body>
+</html>

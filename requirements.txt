@@ -1,8 +1,10 @@
 django
+django-crispy-forms
 django-crum
 django-debug-toolbar
 django-extensions
 
+celery
 
 # flake8
 flake8
@@ -26,4 +28,8 @@ pymssql
 python-dotenv==0.19.2
 WTForms-SQLAlchemy
 
+django-mssql-backend==2.8.1
+pyodbc==4.0.1
+pytz==2021.3
 
+django-widget-tweaks

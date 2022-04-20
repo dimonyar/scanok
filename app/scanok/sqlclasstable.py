@@ -54,6 +54,7 @@ class BarcodeImages(Base):
 class Partners(Base):
     __tablename__ = 'Partners'
 
+    id = Column(BigInteger,  primary_key=True, autoincrement=True)  # noqa: VNE003, A003
     PartnerF = Column(String(50), primary_key=True, nullable=False)
     NamePartner = Column(String(50), nullable=False)
     Deleted = Column(BIT, nullable=False)
@@ -67,6 +68,7 @@ class Partners(Base):
 class User(Base):
     __tablename__ = 'User'
 
+    id = Column(BigInteger, primary_key=True, autoincrement=True)  # noqa: VNE003, A003
     UserF = Column(BigInteger, primary_key=True, nullable=False)
     Login = Column(String(20), nullable=False)
     Name = Column(String(50), nullable=False)
@@ -218,7 +220,7 @@ class DocHead(Base):
     Field_2 = Column(String(100), nullable=True)
     Field_3 = Column(String(50), nullable=True)
     Field_4 = Column(String(30), nullable=True)
-    Update = Column(BIT, nullable=False)
+    Updated = Column(BIT, nullable=False)
     Deleted = Column(BIT, nullable=False)
     DocDetails = relationship('DocDetails')
 

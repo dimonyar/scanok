@@ -1,11 +1,13 @@
 from accounts.forms import DeviceForm, SignUpForm
 from accounts.models import Device, User
 
+from crum import get_current_user
+
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, ListView, RedirectView, UpdateView
+from django.views.generic import CreateView, DeleteView, ListView, RedirectView, UpdateView
 
 
 class MyProfile(LoginRequiredMixin, UpdateView):
@@ -15,6 +17,7 @@ class MyProfile(LoginRequiredMixin, UpdateView):
     fields = (
         'first_name',
         'last_name',
+        'avatar',
     )
 
     def get_object(self, queryset=None):
@@ -49,9 +52,34 @@ class Devices(ListView):
     template_name = 'devices.html'
     context_object_name = 'devices_list'
 
+    def get_queryset(self):
+        current_id = get_current_user().id
+        new_context = Device.objects.filter(
+            user_id=current_id)
+        return new_context
+
+
+class DeviceUpdate(UserPassesTestMixin, UpdateView):
+    model = Device
+    template_name = 'device_update.html'
+    form_class = DeviceForm
+    success_url = reverse_lazy('accounts:devices')
+
+    def test_func(self):
+        return self.request.user.is_superuser
+
+
+class DeviceDelete(DeleteView):
+    model = Device
+    template_name = 'device_delete.html'
+    success_url = reverse_lazy('accounts:devices')
+
 
 class DeviceCreate(CreateView):
     model = Device
     template_name = 'device_create.html'
     form_class = DeviceForm
     success_url = reverse_lazy('accounts:devices')
+
+    def test_func(self):
+        return self.request.user.is_superuser

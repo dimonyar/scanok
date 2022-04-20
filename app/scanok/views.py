@@ -1,18 +1,27 @@
+from accounts.models import Device
+
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic import ListView
 
-from scanok.forms import PartnerForm
+from scanok.forms import PartnerForm, UserForm
+from scanok.hashmd5 import str2hash
 from scanok.sqlclasstable import DocHead, Good, Partners, Stores, User
 
-from settings.settings import database, password, port, server, user
+from settings.settings import password, port, server, user
 
 from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker
 
 
-def conn_db(database):
+def conn_db():
+
+    if Device.objects.filter(current=True):
+        database = Device.objects.filter(current=True).values_list('name', flat=True)[0]
+    else:
+        database = list(Device.objects.values_list('name')[:1])[0][0]
+
     engine = create_engine(f'mssql+pymssql://{user}:{password}@{server}:{port}/{database}', echo=True)
 
     session = sessionmaker(bind=engine)
@@ -21,43 +30,128 @@ def conn_db(database):
 
 
 class Goods(ListView):
-    s = conn_db(database)   # noqa: VNE001
-    queryset = s.query(Good).order_by(Good.Name)
     template_name = 'goods.html'
     paginate_by = 25
     context_object_name = 'goods_list'
-    s.close()
+
+    def get_queryset(self):
+        s = conn_db()  # noqa: VNE001
+        return s.query(Good).order_by(Good.Name)
 
 
 class Store(ListView):
-    s = conn_db(database)   # noqa: VNE001
-    queryset = s.query(Stores)
     template_name = 'stores.html'
     context_object_name = 'stores_list'
-    s.close()
+
+    def get_queryset(self):
+        s = conn_db()  # noqa: VNE001
+        return s.query(Stores)
 
 
 class Users(ListView):
-    s = conn_db(database)   # noqa: VNE001
-    queryset = s.query(User)
     template_name = 'users.html'
     context_object_name = 'users_list'
-    s.close()
+
+    def get_queryset(self):
+        s = conn_db()  # noqa: VNE001
+        return s.query(User)
+
+
+def user_create(request):
+    s = conn_db()  # noqa: VNE001
+    last_userf = s.query(User.UserF).order_by(User.UserF)[-1]
+    if request.method == 'POST':
+        form = UserForm(request.POST)
+        if form.is_valid():
+            user_f = form.cleaned_data.get('UserF')
+            if not user_f:
+                user_f = str(int(last_userf[0]) + 1)
+
+            login = form.cleaned_data.get('Login')
+            if s.query(User.Login).filter(User.Login == login).first():
+                return reverse_lazy('user_create')
+            name = form.cleaned_data.get('Name')
+            password = form.cleaned_data['Password']
+
+            hash_password = str2hash(password)
+
+            c1 = User(UserF=user_f, Login=login, Name=name, Password=hash_password, Deleted=0, Updated=1)
+            s.add(c1)
+            s.commit()
+            s.close()
+
+            return HttpResponseRedirect('/scanok/users/')
+
+    else:
+        form = UserForm(initial={'UserF': str(int(last_userf[0]) + 1)})
+    return render(request, 'user_create.html', context={'form': form})
+
+
+def user_delete(request, pk):
+    s = conn_db()   # noqa: VNE001
+    instance = s.query(User).filter(User.id == pk)
+    if request.method == 'POST':
+        instance.update({User.Deleted: 1})
+        s.commit()
+        s.close()
+        return HttpResponseRedirect('/scanok/users/')
+    else:
+        return render(request, 'user_delete.html', context={'user': instance})
 
 
 class Partner(ListView):
-    s = conn_db(database)   # noqa: VNE001
-    queryset = s.query(Partners).order_by(desc(Partners.PartnerF))
     template_name = 'partners.html'
     paginate_by = 25
     context_object_name = 'partners_list'
-    s.close()
+
+    def get_queryset(self):
+        s = conn_db()  # noqa: VNE001
+        return s.query(Partners).order_by(desc(Partners.PartnerF))
+
+
+def partner_delete(request, pk):
+    s = conn_db()   # noqa: VNE001
+    instance = s.query(Partners).filter(Partners.id == pk)
+    if request.method == 'POST':
+        instance.update({Partners.Deleted: 1})
+        s.commit()
+        s.close()
+        return HttpResponseRedirect('/scanok/partners/')
+    else:
+        return render(request, 'partner_delete.html', context={'partner': instance})
+
+
+def partner_update(request, pk):
+    s = conn_db()  # noqa: VNE001
+    instance = s.query(Partners).filter(Partners.id == pk)
+    partner_f = s.query(Partners.PartnerF).filter(Partners.id == pk).one()
+    name_partner = s.query(Partners.NamePartner).filter(Partners.id == pk).one()
+    discount = s.query(Partners.Discount).filter(Partners.id == pk).one()
+    if request.method == 'POST':
+        form = PartnerForm(request.POST)
+        if form.is_valid():
+
+            name_partner = form.cleaned_data.get('NamePartner')
+            discount = form.cleaned_data.get('Discount')
+            if not discount:
+                discount = 0.0
+
+            instance.update({Partners.NamePartner: name_partner,
+                             Partners.Discount: discount, Partners.Deleted: 0, Partners.Updated: 1})
+            s.commit()
+            s.close()
+
+            return HttpResponseRedirect('/scanok/partners/')
+
+    else:
+        form = PartnerForm(initial={'PartnerF': partner_f[0], 'NamePartner': name_partner[0], 'Discount': discount[0]})
+    return render(request, 'partner_update.html', context={'form': form})
 
 
 def partner_create(request):
     if request.method == 'POST':
         form = PartnerForm(request.POST)
-        s = conn_db(database)  # noqa: VNE001
+        s = conn_db()  # noqa: VNE001
         if form.is_valid():
             partner_f = form.cleaned_data.get('PartnerF')
             if not partner_f:
@@ -73,19 +167,21 @@ def partner_create(request):
             c1 = Partners(PartnerF=partner_f, NamePartner=name_partner, Discount=discount, Deleted=0, Updated=1)
             s.add(c1)
             s.commit()
+            s.close()
 
             return HttpResponseRedirect('/scanok/partners/')
 
     else:
         form = PartnerForm()
-    return render(request, 'create.html', context={'form': form})
+    return render(request, 'partner_create.html', context={'form': form})
 
 
 class Dochead(ListView):
-    s = conn_db(database)  # noqa: VNE001
-    queryset = s.query(DocHead.DocType, DocHead.Comment, Partners.NamePartner, DocHead.CreateDate, DocHead.DocStatus,
-                       Stores.NameStore)
     template_name = 'dochead.html'
     paginate_by = 25
     context_object_name = 'dochead_list'
-    s.close()
+
+    def get_queryset(self):
+        s = conn_db()  # noqa: VNE001
+        return s.query(DocHead.DocType, DocHead.Comment, Partners.NamePartner, DocHead.CreateDate, DocHead.DocStatus,
+                       Stores.NameStore)
