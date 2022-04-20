@@ -4,10 +4,10 @@ from accounts.models import Device, User
 from crum import get_current_user
 
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, ListView, RedirectView, UpdateView
+from django.views.generic import CreateView, DeleteView, ListView, RedirectView, UpdateView
 
 
 class MyProfile(LoginRequiredMixin, UpdateView):
@@ -17,6 +17,7 @@ class MyProfile(LoginRequiredMixin, UpdateView):
     fields = (
         'first_name',
         'last_name',
+        'avatar',
     )
 
     def get_object(self, queryset=None):
@@ -56,6 +57,22 @@ class Devices(ListView):
         new_context = Device.objects.filter(
             user_id=current_id)
         return new_context
+
+
+class DeviceUpdate(UserPassesTestMixin, UpdateView):
+    model = Device
+    template_name = 'device_update.html'
+    form_class = DeviceForm
+    success_url = reverse_lazy('accounts:devices')
+
+    def test_func(self):
+        return self.request.user.is_superuser
+
+
+class DeviceDelete(DeleteView):
+    model = Device
+    template_name = 'device_delete.html'
+    success_url = reverse_lazy('accounts:devices')
 
 
 class DeviceCreate(CreateView):

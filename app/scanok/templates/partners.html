@@ -2,29 +2,47 @@
 {% block title %}Partners{% endblock %}
 
 {% block content %}
-<div>
-    <p>
-        <form action="{% url 'scanok:partner_create' %}">
-            <button>Create</button>
-        </form>
-    </p>
-</div>
-<table border="1">
-    <col width="50" valign="top" align="left">
-    <col width="500" valign="top" align="left">
-    <col width="50" valign="top" align="left">
+<div class="row">
+    <div class="col">
+        <div>
+            <p>
+            <form action="{% url 'scanok:partner_create' %}">
+                <button class="btn btn-secondary">Create</button>
+            </form>
+            </p>
+        </div>
+        <table class="table table-striped table-hover">
+            <tr>
+                <th scope="col">PartnerF</th>
+                <th scope="col">NamePartner</th>
+                <th scope="col">Discount</th>
+                <th scope="col">Actions</th>
+            </tr>
 
-{% for row in partners_list %}
-        <tr>
-            <td>{{row.PartnerF}}</td>
-            <td>{{row.NamePartner}}</td>
-            <td>{{row.Discount}}</td>
-        </tr>
-{% endfor %}
+            {% for row in partners_list %}
+            {% if row.Deleted == False %}
+            <tr>
+                <td>{{row.PartnerF}}</td>
+                <td>{{row.NamePartner}}</td>
+                <td>{{row.Discount}}</td>
+                <td width="10" align="center">
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton2"
+                                data-bs-toggle="dropdown" aria-expanded="false"></button>
+                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                            <li><a class="dropdown-item active" href="#">Detail</a></li>
+                            <li><a class="dropdown-item" href="{% url 'scanok:partner_update' row.id %}">Edit</a></li>
+                            <li><a class="dropdown-item" href="{% url 'scanok:partner_delete' row.id %}">Delete</a></li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
 
-</table>
+        </table>
 
-    <div class="pagination">
+        <div class="pagination">
         <span class="step-links">
             {% if page_obj.has_previous %}
                 <a href="?page={{ page_obj.previous_page_number }}">previous</a>
@@ -38,6 +56,7 @@
                 <a href="?page={{ page_obj.next_page_number }}">next</a>
             {% endif %}
         </span>
+        </div>
     </div>
-
+</div>
 {% endblock content %}

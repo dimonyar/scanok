@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Device Update{% endblock %}
+{% block content %}
+
+<p>Do you want to delete {{ device.name }}'</p>
+<form method="post">
+    {% csrf_token %}
+    <button type="submit">Delete</button>
+</form>
+
+
+
+{% endblock content %}

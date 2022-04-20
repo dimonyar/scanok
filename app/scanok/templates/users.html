@@ -2,26 +2,50 @@
 {% block title %}Users{% endblock %}
 
 {% block content %}
+<div class="row">
+    <div class="col">
+        <div>
+            <p>
+            <form action="{% url 'scanok:user_create' %}">
+                <button class="btn btn-secondary">Create</button>
+            </form>
+            </p>
+        </div>
 
-<table border="1">
-    <col width="50" valign="top" align="left">
-    <col width="300" valign="top" align="left">
-    <col width="300" valign="top" align="left">
-    <col width="300" valign="top" align="left">
+        <table class="table table-striped table-hover">
+            <tr>
+                <th scope="col">UserF</th>
+                <th scope="col">Name</th>
+                <th scope="col">Login</th>
+                <th scope="col">Password</th>
+                <th scope="col">Actions</th>
+            </tr>
+            {% for row in users_list %}
+            {% if row.UserF == -1 %}
+            <!-- continue -->
+            {% else %}
+            <tr>
+                <td>{{row.UserF}}</td>
+                <td>{{row.Name}}</td>
+                <td>{{row.Login}}</td>
+                <td>{{row.Password}}</td>
+                <td width="10" align="center">
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton2"
+                                data-bs-toggle="dropdown" aria-expanded="false"></button>
+                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                            <li><a class="dropdown-item active" href="#">Detail</a></li>
+                            <li><a class="dropdown-item" href="#">Edit</a></li>
+                            <li><a class="dropdown-item" href="{% url 'scanok:user_delete' row.id %}">Delete</a></li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
 
-{% for row in users_list %}
-    {% if row.UserF == -1 %}
-        <!-- continue -->
-    {% else %}
-        <tr>
-            <td>{{row.UserF}}</td>
-            <td>{{row.Name}}</td>
-            <td>{{row.Login}}</td>
-            <td>{{row.Password}}</td>
-        </tr>
-    {% endif %}
-{% endfor %}
-
-</table>
+        </table>
+    </div>
+</div>
 
 {% endblock content %}
