@@ -2,6 +2,10 @@ SHELL := /bin/bash
 
 manage_py := python app/manage.py
 
+
+flake8:
+	cd app && flake8
+
 migrate:
 	$(manage_py) migrate
 

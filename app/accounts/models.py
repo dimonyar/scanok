@@ -33,7 +33,7 @@ class User(AbstractUser):
 
 class Device(models.Model):
     user = models.ForeignKey('User', on_delete=models.PROTECT, null=True)
-    name = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=50)
     pseudonym = models.CharField(max_length=50)
     created = models.DateTimeField(auto_now_add=True)
     current = models.BooleanField(default=False)

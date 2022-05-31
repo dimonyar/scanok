@@ -16,26 +16,27 @@ from celery.schedules import crontab
 
 from django.urls import reverse_lazy
 
-import dotenv
+import environ
 
-dotenv.load_dotenv('../env/.env')
-
-server = os.environ['server']
-port = os.environ['port']
-database = os.environ['database']
-user = os.environ['user']
-password = os.environ['password']
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+environ.Env.read_env(os.path.join(BASE_DIR, '..', '.env'))
+
+env = environ.Env()
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-j#^(7i1qtfe5r=&e6yh%jsl43pifd^6nz9rz1l5+4)dhy_g%(l'
+server = os.environ['server']
+port = os.environ['port']
+user = os.environ['user']
+password = os.environ['password']
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
+
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
@@ -54,6 +55,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'crispy_forms',
     'widget_tweaks',
+    'formtools',
 
     'accounts',
     'scanok'
@@ -113,16 +115,6 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     },
-    'scanok': {
-        'NAME': 'MT9051-2WE-8K03195',
-        'ENGINE': 'sql_server.pyodbc',
-        'HOST': '185.168.130.74',
-        'PORT': '49170',
-        'USER': 'dima',
-        'PASSWORD': '',
-        'OPTIONS': {'driver': 'ODBC Driver 17 for SQL Server',
-                    }
-    }
 }
 
 # Password validation
@@ -151,6 +143,8 @@ LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 
 USE_I18N = True
+
+USE_L10N = True
 
 USE_TZ = True
 
@@ -192,6 +186,7 @@ HTTP_SCHEMA = 'http'
 
 MEDIA_ROOT = BASE_DIR / '..' / 'static_content' / 'media'
 MEDIA_URL = '/media/'
+
 
 CELERY_BROKER_URL = f'amqp://{os.environ["RABBITMQ_DEFAULT_USER"]}:' \
                     f'{os.environ["RABBITMQ_DEFAULT_PASS"]}@' \
