@@ -35,20 +35,19 @@ class SignUpForm(forms.ModelForm):
         return user
 
 
+class DeviceFormUpdate(forms.ModelForm):
+    name = forms.CharField(max_length=50, disabled=True)
+
+    class Meta:
+        model = Device
+        fields = ('name', 'pseudonym', 'current')
+
+
 class DeviceForm(forms.ModelForm):
     class Meta:
         model = Device
         fields = ('name', 'pseudonym', 'current')
 
 
-class DeviceChangeForm(forms.ModelForm):
-    qs = Device.objects.values_list('name', flat=True)
-
-    name = forms.ModelChoiceField(
-        queryset=qs,
-        empty_label='None',
-    )
-
-    class Meta:
-        model = Device
-        fields = ('name',)
+class DeviceFormConfirm(forms.Form):
+    confirm = forms.CharField(required=True)

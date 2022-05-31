@@ -1,10 +1,12 @@
-django
+django~=4.0.2
 django-crispy-forms
 django-crum
 django-debug-toolbar
 django-extensions
 
-celery
+celery~=5.2.6
+
+django-formtools
 
 # flake8
 flake8
@@ -22,7 +24,7 @@ flake8-variables-names==0.0.4
 flake8-import-order
 pep8-naming==0.12.1
 
-sqlalchemy
+sqlalchemy~=1.4.31
 sqlalchemy-utils
 pymssql
 python-dotenv==0.19.2
@@ -31,5 +33,7 @@ WTForms-SQLAlchemy
 django-mssql-backend==2.8.1
 pyodbc==4.0.1
 pytz==2021.3
+
+django-environ
 
 django-widget-tweaks
