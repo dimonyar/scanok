@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic import ListView
 
-from scanok.forms import PartnerForm, UserForm
+from scanok.forms import GoodForm, PartnerForm, UserForm
 from scanok.hashmd5 import str2hash
 from scanok.sqlclasstable import DocHead, Good, Partners, Stores, User
 
@@ -16,7 +16,6 @@ from sqlalchemy.orm import sessionmaker
 
 
 def conn_db():
-
     if Device.objects.filter(current=True):
         database = Device.objects.filter(current=True).values_list('name', flat=True)[0]
     else:
@@ -25,7 +24,7 @@ def conn_db():
     engine = create_engine(f'mssql+pymssql://{user}:{password}@{server}:{port}/{database}', echo=True)
 
     session = sessionmaker(bind=engine)
-    s = session()   # noqa: VNE001
+    s = session()  # noqa: VNE001
     return s
 
 
@@ -37,6 +36,63 @@ class Goods(ListView):
     def get_queryset(self):
         s = conn_db()  # noqa: VNE001
         return s.query(Good).order_by(Good.Name)
+
+
+def good_update(request, pk):
+    s = conn_db()  # noqa: VNE001
+    instance = s.query(Good).filter(Good.id == pk).one()
+
+    good_f = instance.GoodF
+    good_name = instance.Name
+    good_price = instance.Price
+    good_unit = instance.Unit
+    if request.method == 'POST':
+        form = GoodForm(request.POST)
+        if form.is_valid():
+
+            good_name = form.cleaned_data.get('Name')
+            good_price = form.cleaned_data.get('Price')
+            good_unit = form.cleaned_data['Unit']
+
+            instance.update({
+                Good.Name: good_name,
+                Good.Price: good_price,
+                Good.Unit: good_unit
+            })
+            s.commit()
+            s.close()
+
+            return HttpResponseRedirect('/scanok/goods/')
+
+    else:
+        form = GoodForm(initial={'GoodF': good_f, 'Name': good_name, 'Price': good_price, 'Unit': good_unit})
+    return render(request, 'good_update.html', context={'form': form})
+
+
+def good_create(request):
+    s = conn_db()  # noqa: VNE001
+    last_good = s.query(Good.GoodF).order_by(Good.GoodF)[-1]
+    if request.method == 'POST':
+        form = GoodForm(request.POST)
+        if form.is_valid():
+            good_f = form.cleaned_data.get('GoodF')
+            if not good_f:
+                good_f = str(int(last_good[0]) + 1)
+
+            name = form.cleaned_data.get('Name')
+            price = form.cleaned_data['Price']
+            unit = form.cleaned_data['Unit']
+
+            c1 = Good(GoodF=good_f, Name=name, Price=price, Deleted=0, Updated=1, Unit=unit, Field_2='A')
+            s.add(c1)
+            s.commit()
+            s.close()
+
+            return HttpResponseRedirect('/scanok/goods/')
+
+    else:
+        form = GoodForm(initial={'GoodF': str(int(last_good[0]) + 1), 'Unit': 'шт.'})
+    return render(request, 'good_create.html', context={'form': form})
 
 
 class Store(ListView):
@@ -88,7 +144,7 @@ def user_create(request):
 
 
 def user_delete(request, pk):
-    s = conn_db()   # noqa: VNE001
+    s = conn_db()  # noqa: VNE001
     instance = s.query(User).filter(User.id == pk)
     if request.method == 'POST':
         instance.update({User.Deleted: 1})
@@ -110,7 +166,7 @@ class Partner(ListView):
 
 
 def partner_delete(request, pk):
-    s = conn_db()   # noqa: VNE001
+    s = conn_db()  # noqa: VNE001
     instance = s.query(Partners).filter(Partners.id == pk)
     if request.method == 'POST':
         instance.update({Partners.Deleted: 1})

@@ -11,6 +11,7 @@ Base = declarative_base()
 class Good(Base):
     __tablename__ = 'Good'
 
+    id = Column(BigInteger, primary_key=True, autoincrement=True)  # noqa: VNE003, A003
     GoodF = Column(String(30), primary_key=True, nullable=False)
     Name = Column(String(300), nullable=False)
     Price = Column(Float, nullable=False)
