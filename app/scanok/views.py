@@ -17,7 +17,7 @@ from sqlalchemy.orm import sessionmaker
 
 def conn_db():
     if Device.objects.filter(current=True):
-        database = Device.objects.filter(current=True).values_list('name', flat=True)[0]
+        database = Device.objects.get(current=True).name
     else:
         database = list(Device.objects.values_list('name')[:1])[0][0]
 
@@ -93,6 +93,18 @@ def good_create(request):
     else:
         form = GoodForm(initial={'GoodF': str(int(last_good[0]) + 1), 'Unit': 'шт.'})
     return render(request, 'good_create.html', context={'form': form})
+
+
+def good_delete(request, pk):
+    s = conn_db()  # noqa: VNE001
+    instance = s.query(Good).filter(Good.id == pk)
+    if request.method == 'POST':
+        instance.update({Good.Deleted: 1})
+        s.commit()
+        s.close()
+        return HttpResponseRedirect('/scanok/goods/')
+    else:
+        return render(request, 'good_delete.html', context={'good': instance})
 
 
 class Store(ListView):

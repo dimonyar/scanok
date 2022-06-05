@@ -8,6 +8,7 @@ urlpatterns = [
     path('goods/', scanok_views.Goods.as_view(), name='goods'),
     path('goods/create/', scanok_views.good_create, name='good_create'),
     path('goods/update/<int:pk>/', scanok_views.good_update, name='good_update'),
+    path('goods/delete/<int:pk>/', scanok_views.good_delete, name='good_delete'),
 
     path('stores/', scanok_views.Store.as_view(), name='stores'),
     path('users/', scanok_views.Users.as_view(), name='users'),
