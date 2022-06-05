@@ -18,18 +18,15 @@
         <table>
             {{ wizard.management_form }}
             {% if wizard.form.forms %}
-            {{ wizard.form.management_form }}
+            {{ wizard.form.management_form|crispy }}
             {% for form in wizard.form.forms %}
-            {{ form }}
+            {{ form|crispy }}
             {% endfor %}
             {% else %}
-            {{ wizard.form }}
+            {{ wizard.form|crispy }}
             {% endif %}
         </table>
-        {% if wizard.steps.prev %}
-        <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.first }}">first step</button>
-        <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}">prev step</button>
-        {% endif %}
+
         <input type="submit" value="submit"/>
     </form>
 

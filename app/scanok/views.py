@@ -40,16 +40,16 @@ class Goods(ListView):
 
 def good_update(request, pk):
     s = conn_db()  # noqa: VNE001
-    instance = s.query(Good).filter(Good.id == pk).one()
+    value = s.query(Good).filter(Good.id == pk).one()
+    instance = s.query(Good).filter(Good.id == pk)
 
-    good_f = instance.GoodF
-    good_name = instance.Name
-    good_price = instance.Price
-    good_unit = instance.Unit
+    good_f = value.GoodF
+    good_name = value.Name
+    good_price = value.Price
+    good_unit = value.Unit
     if request.method == 'POST':
         form = GoodForm(request.POST)
         if form.is_valid():
-
             good_name = form.cleaned_data.get('Name')
             good_price = form.cleaned_data.get('Price')
             good_unit = form.cleaned_data['Unit']
