@@ -8,7 +8,7 @@
     <div class="col">
         <div>
             <p>
-            <form action="#">
+            <form action="{% url 'scanok:good_create' %}">
                 <button class="btn btn-secondary">Create</button>
             </form>
             </p>
@@ -22,6 +22,7 @@
                 <th scope="col">Actions</th>
             </tr>
             {% for row in goods_list %}
+            {% if row.Deleted == False %}
             <tr>
                 <td align="right">{{ row.GoodF|zfill:6}}</td>
                 <td align="left">{{row.Name}}</td>
@@ -32,14 +33,13 @@
                         <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton2"
                                 data-bs-toggle="dropdown" aria-expanded="false"></button>
                         <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
-                            <li><a class="dropdown-item active"
-                                   href="#">Detail</a></li>
-                            <li><a class="dropdown-item" href="#">Edit</a></li>
-                            <li><a class="dropdown-item" href="#">Delete</a></li>
+                            <li><a class="dropdown-item" href="{% url 'scanok:good_update' row.id %}">Edit</a></li>
+                            <li><a class="dropdown-item" href="{% url 'scanok:good_delete' row.id %}">Delete</a></li>
                         </ul>
                     </div>
                 </td>
             </tr>
+            {% endif %}
             {% endfor %}
 
         </table>

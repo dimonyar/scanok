@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+{% block title %}Good Update{% endblock %}
+{% block content %}
+
+<form method="post">
+    {% csrf_token %}
+    <div class="form-row">
+        <div class="form-group col-md-6 mb-0">
+        {{ form.GoodF|attr:"disabled=True"|as_crispy_field }}
+
+        {{ form.Name|as_crispy_field }}
+
+        {{ form.Price|as_crispy_field }}
+
+        {{ form.Unit|as_crispy_field }}
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Update</button>
+</form>
+
+
+
+{% endblock content %}

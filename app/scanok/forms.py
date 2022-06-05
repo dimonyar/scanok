@@ -7,6 +7,13 @@ class PartnerForm(forms.Form):
     Discount = forms.DecimalField(label='Discount', required=False, max_value=100, decimal_places=2)
 
 
+class GoodForm(forms.Form):
+    GoodF = forms.CharField(label='GoodF', required=False, max_length=30)
+    Name = forms.CharField(label='Name', required=False, max_length=300)
+    Price = forms.DecimalField(label='Price', required=False, decimal_places=2)
+    Unit = forms.CharField(label='Unit', required=False, max_length=20)
+
+
 class UserForm(forms.Form):
     UserF = forms.CharField(label='UserF', required=True, max_length=50)
     Login = forms.CharField(label='Login', required=True, max_length=50)
