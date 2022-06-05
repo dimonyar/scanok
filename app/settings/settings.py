@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'widget_tweaks',
     'formtools',
+    'django_tables2',
 
     'accounts',
     'scanok'

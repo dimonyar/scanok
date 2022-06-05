@@ -4,6 +4,7 @@ from string import ascii_letters, digits
 from accounts.SmartStoreManagment_models import Devices as TableDevices
 from accounts.forms import DeviceForm, DeviceFormConfirm, DeviceFormUpdate, SignUpForm
 from accounts.models import Device, User
+from accounts.tables import DeviceTable
 
 from crum import get_current_user
 
@@ -11,7 +12,9 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import HttpResponseRedirect, get_object_or_404
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, DeleteView, ListView, RedirectView, UpdateView
+from django.views.generic import CreateView, DeleteView, RedirectView, UpdateView
+
+from django_tables2 import SingleTableView
 
 from formtools.wizard.views import SessionWizardView
 
@@ -58,10 +61,10 @@ class SignUp(CreateView):
     form_class = SignUpForm
 
 
-class Devices(ListView):
+class Devices(SingleTableView):
     model = Device
+    table_class = DeviceTable
     template_name = 'devices.html'
-    context_object_name = 'devices_list'
 
     def get_queryset(self):
         current_id = get_current_user().id
