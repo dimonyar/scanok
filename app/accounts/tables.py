@@ -11,7 +11,7 @@ class DeviceTable(tables.Table):
     created = tables.DateTimeColumn(format='d.m.Y')
 
     current = tables.TemplateColumn(
-        template_name="device_current.html", verbose_name="current", orderable=False
+        template_name="device_current.html", verbose_name="", orderable=False
     )
 
     class Meta:

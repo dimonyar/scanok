@@ -14,7 +14,7 @@ function cl(){
 
 function currentDevice() {
     console.log (this.value);
-fetch("current-device/", {
+fetch("/accounts/devices/current-device/", {
     body: JSON.stringify({id_changeDevice: this.value}),
     method: "POST",
     })

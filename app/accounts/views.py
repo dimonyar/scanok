@@ -86,6 +86,17 @@ def search_devices(request):
         return JsonResponse(list(data), safe=False)
 
 
+def list_devices(request):
+
+    if request.method == 'POST':
+        current_id = get_current_user().id
+        devices = Device.objects.filter(
+            user_id=current_id).order_by('-id')
+
+        devices_list = devices.values()
+        return JsonResponse(list(devices_list), safe=False)
+
+
 class Devices(SingleTableView):
     model = Device
     table_class = DeviceTable
