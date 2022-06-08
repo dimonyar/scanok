@@ -2,6 +2,7 @@ from accounts import views
 
 from django.contrib.auth import views as auth_views
 from django.urls import path
+from django.views.decorators.csrf import csrf_exempt
 
 
 app_name = 'accounts'
@@ -17,5 +18,8 @@ urlpatterns = [
     path('devices/create/', views.DeviceCreate.as_view(), name='device_create'),
     path('devices/update/<int:pk>/', views.DeviceUpdate.as_view(), name='device_update'),
     path('devices/delete/<int:pk>/', views.DeviceDelete.as_view(), name='device_delete'),
+    path('devices/search-devices/', csrf_exempt(views.search_devices), name='search_devices'),
+    path('devices/current-device/', csrf_exempt(views.current_device), name='current_devices'),
+
 
 ]
