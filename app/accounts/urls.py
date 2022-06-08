@@ -20,6 +20,7 @@ urlpatterns = [
     path('devices/delete/<int:pk>/', views.DeviceDelete.as_view(), name='device_delete'),
     path('devices/search-devices/', csrf_exempt(views.search_devices), name='search_devices'),
     path('devices/current-device/', csrf_exempt(views.current_device), name='current_devices'),
+    path('devices/list-devices/', csrf_exempt(views.list_devices), name='list_devices'),
 
 
 ]
