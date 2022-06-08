@@ -1,3 +1,4 @@
+import json
 from random import choice
 from string import ascii_letters, digits
 
@@ -10,6 +11,7 @@ from crum import get_current_user
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import HttpResponseRedirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DeleteView, RedirectView, UpdateView
@@ -61,6 +63,29 @@ class SignUp(CreateView):
     form_class = SignUpForm
 
 
+def current_device(request):
+    if request.method == 'POST':
+        id_change_device = json.loads(request.body).get('id_changeDevice')
+        if id_change_device:
+            change_device = Device.objects.get(id=id_change_device)
+            change_device.current = True
+            change_device.save()
+
+    return HttpResponse(status=204)
+
+
+def search_devices(request):
+    if request.method == 'POST':
+        search_str = json.loads(request.body).get('searchText')
+        devices = Device.objects.filter(
+            name__istartswith=search_str, user=request.user) | Device.objects.filter(
+            pseudonym__icontains=search_str, user=request.user
+        )
+
+        data = devices.values()
+        return JsonResponse(list(data), safe=False)
+
+
 class Devices(SingleTableView):
     model = Device
     table_class = DeviceTable
@@ -69,7 +94,7 @@ class Devices(SingleTableView):
     def get_queryset(self):
         current_id = get_current_user().id
         new_context = Device.objects.filter(
-            user_id=current_id)
+            user_id=current_id).order_by('-id')
         return new_context
 
 

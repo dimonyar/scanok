@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% load render_table from django_tables2 %}
 {% block title %}Devices{% endblock %}
 
@@ -20,9 +21,45 @@
             </p>
         </div>
         {% endif %}
+        <div class="row">
+            <div class="col-md-8"></div>
+            <div class="col-md-8">
+                <div class="form-group">
+                    <input type="text" class="form-control" id="searchField" placeholder="Search">
+                </div>
+            </div>
 
-        {% render_table table %}
+        </div>
 
+        <div class="app-table">
+            {% render_table table %}
+        </div>
+
+        <div class="table-output">
+
+            <table class="table">
+                <thead>
+                <tr>
+                    <th class="orderable">Name</th>
+                    <th class="orderable">Pseudonym</th>
+                    <th class="orderable">Created</th>
+                    <th class="orderable">Current</th>
+                    <th></th>
+                </tr>
+                </thead>
+
+                <tbody class="table-body">
+
+                </tbody>
+            </table>
+
+        </div>
     </div>
+
 </div>
+
+
+<script src="{% static 'js/searchDevices.js' %}"></script>
+<script src="{% static 'js/radioDevices.js' %}"></script>
+
 {% endblock content %}

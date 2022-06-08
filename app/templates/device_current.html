@@ -1,0 +1,10 @@
+
+{% if record.current == True %}
+
+<input type="radio" name="current" value={{record.id}} onclick="cl()" checked>
+
+{% else %}
+
+<input type="radio" name="current" value={{record.id}} onclick="cl()">
+
+{% endif %}
