@@ -51,12 +51,3 @@ class DeviceForm(forms.ModelForm):
 
 class DeviceFormConfirm(forms.Form):
     confirm = forms.CharField(required=True)
-
-
-class DeviceFormCurrent(forms.ModelForm):
-    pseudonym = forms.CharField(widget=forms.Select)
-
-    class Meta:
-        model = Device
-        fields = ('pseudonym',)
-
