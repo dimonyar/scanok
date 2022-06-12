@@ -7,7 +7,7 @@ from django.views.generic import ListView
 
 from scanok.forms import GoodForm, PartnerForm, UserForm
 from scanok.hashmd5 import str2hash
-from scanok.sqlclasstable import DocHead, Good, Partners, Stores, User
+from scanok.sqlclasstable import Barcode, DocHead, Good, Partners, Stores, User
 
 from settings.settings import password, port, server, user
 
@@ -35,7 +35,21 @@ class Goods(ListView):
 
     def get_queryset(self):
         s = conn_db()  # noqa: VNE001
-        return s.query(Good).order_by(Good.Name)
+
+        query = s.query(Good, Barcode).join(
+                Barcode, Barcode.GoodF == Good.GoodF
+            )
+
+        query_dict = {}
+        for key, value in query:
+            if query_dict.get(key):
+                query_dict[key].append(value)
+            else:
+                query_dict.update({key: [value]})
+
+        record = list(query_dict.items())
+
+        return record
 
 
 def good_update(request, pk):
@@ -122,7 +136,7 @@ class Users(ListView):
 
     def get_queryset(self):
         s = conn_db()  # noqa: VNE001
-        return s.query(User)
+        return s.query(User).all()
 
 
 def user_create(request):
