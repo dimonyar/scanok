@@ -8,6 +8,7 @@ fetch("/accounts/devices/current-device/", {
     method: "POST",
     })
 
+
 setTimeout(function(){ location.reload() }, 1000)
 
 }
