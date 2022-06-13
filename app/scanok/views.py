@@ -28,39 +28,65 @@ def conn_db():
     return s
 
 
+def good_barcode_list(pk=None):
+
+    s = conn_db()  # noqa: VNE001
+    if pk:
+        query = s.query(Good, Barcode).join(
+            Barcode, Barcode.GoodF == Good.GoodF
+        ).filter(
+            Good.id == pk
+        )
+    else:
+        query = s.query(Good, Barcode).join(
+            Barcode, Barcode.GoodF == Good.GoodF
+        )
+
+    query_dict = {}
+    for key, value in query:
+        if query_dict.get(key):
+            query_dict[key].append(value)
+        else:
+            query_dict.update({key: [value]})
+
+    record = list(query_dict.items())
+
+    return record
+
+
 class Goods(ListView):
     template_name = 'goods.html'
     paginate_by = 25
     context_object_name = 'goods_list'
 
     def get_queryset(self):
-        s = conn_db()  # noqa: VNE001
+        record = good_barcode_list()
+        return record
 
-        query = s.query(Good, Barcode).join(
-                Barcode, Barcode.GoodF == Good.GoodF
-            )
 
-        query_dict = {}
-        for key, value in query:
-            if query_dict.get(key):
-                query_dict[key].append(value)
-            else:
-                query_dict.update({key: [value]})
+class GoodsDetails(ListView):
+    template_name = 'good_details.html'
+    context_object_name = 'details_list'
 
-        record = list(query_dict.items())
-
+    def get_queryset(self):
+        record = good_barcode_list(self.kwargs['pk'])
         return record
 
 
 def good_update(request, pk):
-    s = conn_db()  # noqa: VNE001
-    value = s.query(Good).filter(Good.id == pk).one()
-    instance = s.query(Good).filter(Good.id == pk)
+    record = good_barcode_list(pk)
+
+    barcode_list = record[0][1]
+
+    value = record[0][0]
 
     good_f = value.GoodF
     good_name = value.Name
     good_price = value.Price
     good_unit = value.Unit
+
+    s = conn_db()  # noqa: VNE001
+    instance = s.query(Good).filter(Good.id == pk)
     if request.method == 'POST':
         form = GoodForm(request.POST)
         if form.is_valid():
@@ -80,7 +106,8 @@ def good_update(request, pk):
 
     else:
         form = GoodForm(initial={'GoodF': good_f, 'Name': good_name, 'Price': good_price, 'Unit': good_unit})
-    return render(request, 'good_update.html', context={'form': form})
+
+    return render(request, 'good_update.html', context={'form': form, 'barcode_list': barcode_list})
 
 
 def good_create(request):

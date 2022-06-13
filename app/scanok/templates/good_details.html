@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load extra_teg %}
+{% block title %}Good Update{% endblock %}
+{% block content %}
+
+
+{% for item in details_list %}
+
+<table>
+    <tr>
+        <td>
+            Id
+        </td>
+        <td>
+            - {{item.0.id}}
+        </td>
+    </tr>
+    <tr>
+        <td>
+            GoodF
+        </td>
+        <td>
+            - {{item.0.GoodF|zfill:6}}
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Name
+        </td>
+        <td>
+            - {{item.0.Name}}
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Price
+        </td>
+        <td>
+            - {{item.0.Price}}
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Unit
+        </td>
+        <td>
+            - {{item.0.Unit}}
+        </td>
+    </tr>
+</table>
+
+
+<table class="table">
+    <thead class="thead-light">
+    <tr>
+        <th>GoodF</th>
+        <th>Code</th>
+        <th>BarcodeName</th>
+        <th>Count</th>
+    </tr>
+    </thead>
+
+    {% for barcode in item.1 %}
+    <tr>
+        <td>{{ barcode.GoodF|zfill:6 }}</td>
+        <td>{{ barcode.Code }}</td>
+        <td>{{ barcode.BarcodeName }}</td>
+        <td>{{ barcode.Count }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endfor %}
+
+{% endblock content %}
