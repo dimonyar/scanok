@@ -85,7 +85,7 @@ def good_update(request, pk):
     good_price = value.Price
     good_unit = value.Unit
 
-    s = conn_db() # noqa: VNE001
+    s = conn_db()  # noqa: VNE001
     instance = s.query(Good).filter(Good.id == pk)
     if request.method == 'POST':
         form = GoodForm(request.POST)
