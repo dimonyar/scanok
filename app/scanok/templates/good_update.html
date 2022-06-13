@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 {% load widget_tweaks %}
+{% load extra_teg %}
 {% block title %}Good Update{% endblock %}
 {% block content %}
 
@@ -8,13 +9,13 @@
     {% csrf_token %}
     <div class="form-row">
         <div class="form-group col-md-6 mb-0">
-        {{ form.GoodF|attr:"disabled=True"|as_crispy_field }}
+            {{ form.GoodF|attr:"disabled=True"|as_crispy_field }}
 
-        {{ form.Name|as_crispy_field }}
+            {{ form.Name|as_crispy_field }}
 
-        {{ form.Price|as_crispy_field }}
+            {{ form.Price|as_crispy_field }}
 
-        {{ form.Unit|as_crispy_field }}
+            {{ form.Unit|as_crispy_field }}
         </div>
     </div>
 
@@ -22,5 +23,38 @@
 </form>
 
 
+<div>
+    <table class="table">
+        <thead class="thead-light">
+        <tr>
+            <th scope="col">GoodF</th>
+            <th scope="col">Code</th>
+            <th scope="col">BarcodeName</th>
+            <th scope="col">Count</th>
+            <th scope="col"></th>
+        </tr>
+        </thead>
 
+        {% for barcode in barcode_list %}
+        <tr>
+            <td>{{ barcode.GoodF|zfill:6 }}</td>
+            <td>{{ barcode.Code }}</td>
+            <td>{{ barcode.BarcodeName }}</td>
+            <td>{{ barcode.Count }}</td>
+            <td>
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton2"
+                            data-bs-toggle="dropdown" aria-expanded="false"></button>
+                    <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                        <li><a class="dropdown-item" href="#">Edit</a>
+                        </li>
+                        <li><a class="dropdown-item" href="#">Delete</a>
+                        </li>
+                    </ul>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
 {% endblock content %}
