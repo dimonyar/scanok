@@ -22,8 +22,16 @@
     <button type="submit" class="btn btn-primary">Update</button>
 </form>
 
+<hr size="3", color=black>
 
 <div>
+    <div>
+        <p>
+        <form action="{% url 'scanok:add_barcode' pk %}">
+            <button class="btn btn-secondary">Add Barcode</button>
+        </form>
+        </p>
+    </div>
     <table class="table">
         <thead class="thead-light">
         <tr>

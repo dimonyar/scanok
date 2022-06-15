@@ -1,17 +1,18 @@
 from accounts.models import Device
 
+from django.conf import settings
+from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic import ListView
 
-from scanok.forms import GoodForm, PartnerForm, UserForm
+from scanok.forms import BarcodeForm, GoodForm, PartnerForm, UserForm
 from scanok.hashmd5 import str2hash
 from scanok.sqlclasstable import Barcode, DocHead, Good, Partners, Stores, User
 
-from settings.settings import password, port, server, user
-
 from sqlalchemy import create_engine, desc
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 
 
@@ -21,7 +22,8 @@ def conn_db():
     else:
         database = list(Device.objects.values_list('name')[:1])[0][0]
 
-    engine = create_engine(f'mssql+pymssql://{user}:{password}@{server}:{port}/{database}', echo=True)
+    engine = create_engine(f'mssql+pymssql://{settings.USER}:{settings.PASSWORD}@'
+                           f'{settings.SERVER}:{settings.PORT}/{database}', echo=True)
 
     session = sessionmaker(bind=engine)
     s = session()  # noqa: VNE001
@@ -40,7 +42,7 @@ def good_barcode_list(pk=None):
     else:
         query = s.query(Good, Barcode).join(
             Barcode, Barcode.GoodF == Good.GoodF
-        )
+        ).order_by(-Good.id)
 
     query_dict = {}
     for key, value in query:
@@ -107,7 +109,9 @@ def good_update(request, pk):
     else:
         form = GoodForm(initial={'GoodF': good_f, 'Name': good_name, 'Price': good_price, 'Unit': good_unit})
 
-    return render(request, 'good_update.html', context={'form': form, 'barcode_list': barcode_list})
+    return render(request, 'good_update.html', context={
+        'form': form, 'barcode_list': barcode_list, 'pk': pk
+    })
 
 
 def good_create(request):
@@ -127,9 +131,10 @@ def good_create(request):
             c1 = Good(GoodF=good_f, Name=name, Price=price, Deleted=0, Updated=1, Unit=unit, Field_2='A')
             s.add(c1)
             s.commit()
+            pk = c1.id
             s.close()
 
-            return HttpResponseRedirect('/scanok/goods/')
+            return HttpResponseRedirect(f'/scanok/goods/add_barcode/{pk}/')
 
     else:
         form = GoodForm(initial={'GoodF': str(int(last_good[0]) + 1), 'Unit': 'шт.'})
@@ -138,14 +143,47 @@ def good_create(request):
 
 def good_delete(request, pk):
     s = conn_db()  # noqa: VNE001
-    instance = s.query(Good).filter(Good.id == pk)
+    good = s.query(Good).filter(Good.id == pk)
+
     if request.method == 'POST':
-        instance.update({Good.Deleted: 1})
+        good.update({Good.Deleted: 1})
+        s.query(Barcode).filter(Barcode.GoodF == good[0].GoodF).update({Barcode.Deleted: 1})
         s.commit()
+
         s.close()
         return HttpResponseRedirect('/scanok/goods/')
     else:
-        return render(request, 'good_delete.html', context={'good': instance})
+        return render(request, 'good_delete.html', context={'good': good})
+
+
+def barcode_create(request, pk):
+
+    s = conn_db()  # noqa: VNE001
+
+    good = s.query(Good).filter(Good.id == pk).one()
+    good_f = good.GoodF
+    if request.method == 'POST':
+        form = BarcodeForm(request.POST)
+        if form.is_valid():
+            barcode = form.cleaned_data.get('BarcodeName')
+            code = form.cleaned_data['Code']
+            count = form.cleaned_data['Count']
+
+            try:
+                c1 = Barcode(GoodF=good_f, BarcodeName=barcode, Code=code, Deleted=0, Updated=1, Count=count)
+                if c1:
+                    s.add(c1)
+                    s.commit()
+                    s.close()
+            except IntegrityError:
+                messages.error(request, 'This Barcode already used')
+                return HttpResponseRedirect(f'/scanok/goods/add_barcode/{pk}/')
+
+            return HttpResponseRedirect(f'/scanok/goods/update/{pk}/')
+
+    else:
+        form = BarcodeForm(initial={'GoodF': good_f.zfill(6), 'Code': good_f.zfill(6), 'Count': 1.0})
+    return render(request, 'barcode_create.html', context={'form': form, 'Good': good})
 
 
 class Store(ListView):

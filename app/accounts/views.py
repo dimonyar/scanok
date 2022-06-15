@@ -9,6 +9,7 @@ from accounts.tables import DeviceTable
 
 from crum import get_current_user
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, JsonResponse
@@ -19,8 +20,6 @@ from django.views.generic import CreateView, DeleteView, RedirectView, UpdateVie
 from django_tables2 import SingleTableView
 
 from formtools.wizard.views import SessionWizardView
-
-from settings.settings import password, port, server, user
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -139,8 +138,8 @@ class DeviceCreate(SessionWizardView):
                 # Проверяем данный серийник в списке SmartStoreManagment.dbo.Devices
                 engine = create_engine(
                     f'mssql+pymssql://'
-                    f'{user}:{password}'
-                    f'@{server}:{port}/'
+                    f'{settings.USER}:{settings.PASSWORD}'
+                    f'@{settings.SERVER}:{settings.PORT}/'
                     f'SmartStoreManagment', echo=True
                 )
                 session = sessionmaker(bind=engine)
@@ -167,8 +166,8 @@ class DeviceCreate(SessionWizardView):
 
         engine = create_engine(
             f'mssql+pymssql://'
-            f'{user}:{password}'
-            f'@{server}:{port}/'
+            f'{settings.USER}:{settings.PASSWORD}'
+            f'@{settings.SERVER}:{settings.PORT}/'
             f'SmartStoreManagment', echo=True
         )
         session = sessionmaker(bind=engine)

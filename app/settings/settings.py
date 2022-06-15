@@ -29,10 +29,10 @@ env = environ.Env()
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-server = os.environ['server']
-port = os.environ['port']
-user = os.environ['user']
-password = os.environ['password']
+SERVER = os.environ['server']
+PORT = os.environ['port']
+USER = os.environ['user']
+PASSWORD = os.environ['password']
 SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!

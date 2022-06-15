@@ -3,9 +3,9 @@
 {% block content %}
 
 <div>
-    {% for i in good %}
-    <p> Do you want to delete - {{ i.Name }}? </p>
-    {% endfor %}
+
+    <p> Do you want to delete - {{ good.0.Name }}? </p>
+
     <form method="post">
         {% csrf_token %}
         <button type="submit">Delete</button>
