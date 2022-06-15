@@ -14,6 +14,13 @@ class GoodForm(forms.Form):
     Unit = forms.CharField(label='Unit', required=False, max_length=20)
 
 
+class BarcodeForm(forms.Form):
+    GoodF = forms.CharField(label='GoodF', required=False, max_length=30)
+    BarcodeName = forms.CharField(label='BarcodeName', required=False, max_length=127)
+    Code = forms.CharField(label='Code', required=False, max_length=30)
+    Count = forms.FloatField(label='Count', required=False)
+
+
 class UserForm(forms.Form):
     UserF = forms.CharField(label='UserF', required=True, max_length=50)
     Login = forms.CharField(label='Login', required=True, max_length=50)

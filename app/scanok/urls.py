@@ -11,6 +11,8 @@ urlpatterns = [
     path('goods/delete/<int:pk>/', scanok_views.good_delete, name='good_delete'),
     path('goods/details/<int:pk>/', scanok_views.GoodsDetails.as_view(), name='good_details'),
 
+    path('goods/add_barcode/<int:pk>/', scanok_views.barcode_create, name='add_barcode'),
+
     path('stores/', scanok_views.Store.as_view(), name='stores'),
     path('users/', scanok_views.Users.as_view(), name='users'),
     path('partners/', scanok_views.Partner.as_view(), name='partners'),
