@@ -1,7 +1,6 @@
 from accounts.models import Device
 
 from django.conf import settings
-
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse_lazy
