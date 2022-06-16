@@ -1,7 +1,6 @@
 from accounts.models import Device
 
 from django.conf import settings
-from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse_lazy
@@ -176,14 +175,43 @@ def barcode_create(request, pk):
                     s.commit()
                     s.close()
             except IntegrityError:
-                messages.error(request, 'This Barcode already used')
-                return HttpResponseRedirect(f'/scanok/goods/add_barcode/{pk}/')
+                request.session['entered_barcode'] = barcode
+                request.session['entered_code'] = code
+                request.session['entered_count'] = count
+                request.session['good_f'] = good_f
+                return HttpResponseRedirect(f'/scanok/goods/add_barcode/{pk}/#error')
 
             return HttpResponseRedirect(f'/scanok/goods/update/{pk}/')
 
     else:
         form = BarcodeForm(initial={'GoodF': good_f.zfill(6), 'Code': good_f.zfill(6), 'Count': 1.0})
     return render(request, 'barcode_create.html', context={'form': form, 'Good': good})
+
+
+def barcode_assign(request, pk):
+    barcode = request.session.get('entered_barcode')
+    code = request.session.get('entered_code')
+    count = request.session.get('entered_count')
+    good_f = request.session.get('good_f')
+
+    s = conn_db()  # noqa: VNE001
+
+    instance = s.query(Barcode).filter(Barcode.BarcodeName == barcode)
+
+    instance.update({
+        Barcode.GoodF: good_f,
+        Barcode.Code: code,
+        Barcode.Count: count
+    })
+    s.commit()
+    s.close()
+
+    del request.session['entered_barcode']
+    del request.session['entered_code']
+    del request.session['entered_count']
+    del request.session['good_f']
+
+    return HttpResponseRedirect(f'/scanok/goods/update/{pk}/')
 
 
 class Store(ListView):

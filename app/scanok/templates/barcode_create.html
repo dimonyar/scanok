@@ -26,5 +26,16 @@
     <button type="submit" class="btn btn-primary">Create</button>
 </form>
 
+<div id="error" class="modalbackground">
+    <div class="modalwindow">
+        <h3>Warning!</h3>
+        <p>Barcode {{ request.session.entered_barcode }} already used</p>
+        <p>Do you want to bind him to "{{ Good.Name }}"?</p>
+
+        <a href=" ">Cancel</a> <a href="{% url 'scanok:assign_barcode' Good.id %}">Apply</a>
+
+    </div>
+</div>
+
 
 {% endblock content %}

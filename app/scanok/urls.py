@@ -12,6 +12,7 @@ urlpatterns = [
     path('goods/details/<int:pk>/', scanok_views.GoodsDetails.as_view(), name='good_details'),
 
     path('goods/add_barcode/<int:pk>/', scanok_views.barcode_create, name='add_barcode'),
+    path('goods/assign_barcode/<int:pk>/', scanok_views.barcode_assign, name='assign_barcode'),
 
     path('stores/', scanok_views.Store.as_view(), name='stores'),
     path('users/', scanok_views.Users.as_view(), name='users'),
