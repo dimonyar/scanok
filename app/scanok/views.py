@@ -1,7 +1,9 @@
 from accounts.models import Device
 
+from crum import get_current_user
+
 from django.conf import settings
-from django.http import HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic import ListView
@@ -16,21 +18,21 @@ from sqlalchemy.orm import sessionmaker
 
 
 def conn_db():
-    if Device.objects.filter(current=True):
-        database = Device.objects.get(current=True).name
+    current_id = get_current_user().id
+    try:
+        database = Device.objects.get(user_id=current_id, current=True).name
+    except Device.DoesNotExist:
+        raise Http404
     else:
-        database = list(Device.objects.values_list('name')[:1])[0][0]
+        engine = create_engine(f'mssql+pymssql://{settings.USER}:{settings.PASSWORD}@'
+                               f'{settings.SERVER}:{settings.PORT}/{database}', echo=True)
 
-    engine = create_engine(f'mssql+pymssql://{settings.USER}:{settings.PASSWORD}@'
-                           f'{settings.SERVER}:{settings.PORT}/{database}', echo=True)
-
-    session = sessionmaker(bind=engine)
-    s = session()  # noqa: VNE001
-    return s
+        session = sessionmaker(bind=engine)
+        s = session()  # noqa: VNE001
+        return s
 
 
 def good_barcode_list(pk=None):
-
     s = conn_db()  # noqa: VNE001
     if pk:
         query = s.query(Good, Barcode).join(
@@ -156,7 +158,6 @@ def good_delete(request, pk):
 
 
 def barcode_create(request, pk):
-
     s = conn_db()  # noqa: VNE001
 
     good = s.query(Good).filter(Good.id == pk).one()
@@ -358,5 +359,17 @@ class Dochead(ListView):
 
     def get_queryset(self):
         s = conn_db()  # noqa: VNE001
-        return s.query(DocHead.DocType, DocHead.Comment, Partners.NamePartner, DocHead.CreateDate, DocHead.DocStatus,
-                       Stores.NameStore)
+        record = s.query(
+            DocHead.DocType,
+            DocHead.Comment,
+            Partners.NamePartner,
+            DocHead.CreateDate,
+            DocHead.DocStatus,
+            Stores.NameStore,
+        ).join(
+            Partners, Partners.PartnerF == DocHead.PartnerF
+        ).join(
+            Stores, Stores.StoreF == DocHead.MainStoreF
+        ).all()
+
+        return record

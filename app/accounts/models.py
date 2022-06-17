@@ -40,8 +40,12 @@ class Device(models.Model):
 
     @transaction.atomic
     def save(self, *args, **kwargs):
+
         if self.current:
-            Device.objects.filter(current=True).update(current=False)
+            Device.objects.filter(current=True, user_id=get_current_user().id).update(current=False)
+        else:
+            if not Device.objects.filter(current=True, user_id=get_current_user().id).exclude(id=self.id):
+                self.current = True
         value = get_current_user().id
         self.user_id = value
         super(Device, self).save(*args, **kwargs)
