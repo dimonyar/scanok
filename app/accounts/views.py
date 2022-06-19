@@ -82,6 +82,7 @@ def search_devices(request):
         )
 
         data = devices.values()
+
         return JsonResponse(list(data), safe=False)
 
 

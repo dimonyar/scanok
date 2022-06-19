@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}Goods{% endblock %}
 {% load extra_teg %}
 
@@ -8,6 +9,8 @@
 
 
 <div class="row">
+
+
     <div class="col">
         <div>
             <p>
@@ -16,73 +19,99 @@
             </form>
             </p>
         </div>
-        <table class="table">
-            <thead class="thead-light">
-            <th scope="col">GoodF</th>
-            <th scope="col">Name</th>
-            <th scope="col">Unit</th>
-            <th scope="col">Price</th>
-            <th scope="col"></th>
-            </thead>
 
-            {% for item in goods_list %}
+        <div class="col-md-8">
+            <div class="form-group">
+                <input type="text" class="form-control" id="searchField" placeholder="Search">
+            </div>
+        </div>
 
-            {% if item.0.Deleted == False %}
+        <div class="app-table">
+            <table class="table">
+                <thead class="thead-light">
+                <th scope="col" width="10%">GoodF</th>
+                <th scope="col" >Name</th>
+                <th scope="col" width="10%">Unit</th>
+                <th scope="col" width="15%">Price</th>
+                <th scope="col" width="5%"></th>
+                </thead>
 
-            <tr class="clickable" data-toggle="collapse" data-target="#{{ item.0.GoodF }}"
-                aria-expanded="false" aria-controls="{{ item.0.GoodF }}">
-                <td align="right">{{ item.0.GoodF|zfill:6}}</td>
-                <td align="left">{{ item.0.Name}}</td>
-                <td align="center">{{ item.0.Unit}}</td>
-                <td align="right">{{ item.0.Price|floatformat:2}}</td>
-                <td width="10" align="center">
-                    <div class="dropdown">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton2"
-                                data-bs-toggle="dropdown" aria-expanded="false"></button>
-                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
-                            <li><a class="dropdown-item" href="{% url 'scanok:good_update' item.0.id %}">Edit</a>
-                            </li>
-                            <li><a class="dropdown-item" href="{% url 'scanok:good_delete' item.0.id %}">Delete</a>
-                            </li>
-                        </ul>
-                    </div>
-                </td>
-            </tr>
+                {% for item in goods_list %}
 
-            <tbody id="{{ item.0.GoodF }}" class="collapse">
-            <tr class="box">
-                <td colspan="5" style="padding:0">
-                    <table class="table table-striped table-dark">
-                        <thead>
-                        <tr>
-                            <th>GoodF</th>
-                            <th>Code</th>
-                            <th>BarcodeName</th>
-                            <th>Count</th>
-                        </tr>
-                        </thead>
+                {% if item.0.Deleted == False %}
 
-                        {% for barcode in item.1 %}
-                        <tr>
-                            <td>{{ barcode.GoodF|zfill:6 }}</td>
-                            <td>{{ barcode.Code }}</td>
-                            <td>{{ barcode.BarcodeName }}</td>
-                            <td>{{ barcode.Count }}</td>
-                        </tr>
-                        {% endfor %}
-                    </table>
-                </td>
-            </tr>
-            </tbody>
-            {% endif %}
-            {% endfor %}
+                <tr class="clickable" data-toggle="collapse" data-target="#{{ item.0.GoodF }}"
+                    aria-expanded="false" aria-controls="{{ item.0.GoodF }}">
+                    <td align="right">{{ item.0.GoodF|zfill:6}}</td>
+                    <td align="left">{{ item.0.Name}}</td>
+                    <td align="center">{{ item.0.Unit}}</td>
+                    <td align="right">{{ item.0.Price|floatformat:2}}</td>
+                    <td width="10" align="center">
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton2"
+                                    data-bs-toggle="dropdown" aria-expanded="false"></button>
+                            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                <li><a class="dropdown-item" href="{% url 'scanok:good_update' item.0.id %}">Edit</a>
+                                </li>
+                                <li><a class="dropdown-item" href="{% url 'scanok:good_delete' item.0.id %}">Delete</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+
+                <tbody id="{{ item.0.GoodF }}" class="collapse">
+                <tr class="box">
+                    <td colspan="5" style="padding:0">
+                        <table class="table table-striped table-dark">
+                            <thead>
+                            <tr>
+                                <th>GoodF</th>
+                                <th>Code</th>
+                                <th>BarcodeName</th>
+                                <th>Count</th>
+                            </tr>
+                            </thead>
+
+                            {% for barcode in item.1 %}
+                            <tr>
+                                <td>{{ barcode.GoodF|zfill:6 }}</td>
+                                <td>{{ barcode.Code }}</td>
+                                <td>{{ barcode.BarcodeName }}</td>
+                                <td>{{ barcode.Count }}</td>
+                            </tr>
+                            {% endfor %}
+                        </table>
+
+                    </td>
+                </tr>
+                </tbody>
+                {% endif %}
+                {% endfor %}
 
 
-        </table>
+            </table>
+        </div>
+        <div class="table-output">
+            <table class="table">
+                <thead class="thead-light">
+                <th scope="col" width="10%">GoodF</th>
+                <th scope="col" >Name</th>
+                <th scope="col" width="10%">Unit</th>
+                <th scope="col" width="15%">Price</th>
+                <th scope="col" width="5%"></th>
+                </thead>
+                <tbody class="table-body">
+
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
 {% include 'includes/pagination.html' %}
+
+<script src="{% static 'js/searchGoods.js' %}"></script>
 
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
         integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
