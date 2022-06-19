@@ -1,9 +1,11 @@
+import json
+
 from accounts.models import Device
 
 from crum import get_current_user
 
 from django.conf import settings
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic import ListView
@@ -12,7 +14,7 @@ from scanok.forms import BarcodeForm, GoodForm, PartnerForm, UserForm
 from scanok.hashmd5 import str2hash
 from scanok.sqlclasstable import Barcode, DocHead, Good, Partners, Stores, User
 
-from sqlalchemy import create_engine, desc
+from sqlalchemy import create_engine, desc, or_
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 
@@ -155,6 +157,34 @@ def good_delete(request, pk):
         return HttpResponseRedirect('/scanok/goods/')
     else:
         return render(request, 'good_delete.html', context={'good': good})
+
+
+def search_goods(request):
+    if request.method == 'POST':
+        search = json.loads(request.body).get('searchText')
+
+        s = conn_db()  # noqa: VNE001
+        goods = s.query(Good, Barcode).join(
+            Barcode, Barcode.GoodF == Good.GoodF
+        ).filter(or_(Barcode.BarcodeName == search, Good.GoodF == search, Good.Name.contains(search)))
+
+        query_dict = {}
+
+        for key, value in goods:
+            value.__dict__.pop('_sa_instance_state')
+            if query_dict.get(key):
+                query_dict[key].append(value.__dict__)
+            else:
+                query_dict.update({key: [value.__dict__]})
+
+        data = []
+        for key, value in query_dict.items():
+            key.__dict__.pop('_sa_instance_state')
+            record = key.__dict__
+            record.update({'Barcode': value})
+            data.append(record)
+
+        return JsonResponse(data, safe=False)
 
 
 def barcode_create(request, pk):

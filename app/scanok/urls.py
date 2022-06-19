@@ -1,6 +1,8 @@
 from django.urls import path
+from django.views.decorators.csrf import csrf_exempt
 
 from scanok import views as scanok_views
+
 
 app_name = 'scanok'
 
@@ -10,6 +12,7 @@ urlpatterns = [
     path('goods/update/<int:pk>/', scanok_views.good_update, name='good_update'),
     path('goods/delete/<int:pk>/', scanok_views.good_delete, name='good_delete'),
     path('goods/details/<int:pk>/', scanok_views.GoodsDetails.as_view(), name='good_details'),
+    path('goods/search-goods/', csrf_exempt(scanok_views.search_goods), name='search_goods'),
 
     path('goods/add_barcode/<int:pk>/', scanok_views.barcode_create, name='add_barcode'),
     path('goods/assign_barcode/<int:pk>/', scanok_views.barcode_assign, name='assign_barcode'),
