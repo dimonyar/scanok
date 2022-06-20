@@ -28,6 +28,7 @@ class Good(Base):
 class Barcode(Base):
     __tablename__ = 'Barcode'
 
+    id = Column(BigInteger, primary_key=True, autoincrement=True)  # noqa: VNE003, A003
     BarcodeName = Column(String(127), primary_key=True, unique=True, nullable=False)
     GoodF = Column(String(30), ForeignKey('Good.GoodF'), nullable=False)
     Code = Column(String(30), nullable=False)

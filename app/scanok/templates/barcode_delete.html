@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+{% load extra_teg %}
+{% block title %}Good create{% endblock %}
+{% block content %}
+
+
+<div>
+
+    <p> Do you want to delete - {{BarcodeName}}? </p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Delete</button>
+    </form>
+</div>
+
+
+
+{% endblock content %}
