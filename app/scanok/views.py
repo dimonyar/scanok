@@ -14,7 +14,7 @@ from scanok.forms import BarcodeForm, GoodForm, PartnerForm, UserForm
 from scanok.hashmd5 import str2hash
 from scanok.sqlclasstable import Barcode, DocHead, Good, Partners, Stores, User
 
-from sqlalchemy import create_engine, desc, or_
+from sqlalchemy import create_engine, or_
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 
@@ -102,7 +102,8 @@ def good_update(request, pk):
             instance.update({
                 Good.Name: good_name,
                 Good.Price: good_price,
-                Good.Unit: good_unit
+                Good.Unit: good_unit,
+                Good.Updated: 1.0,
             })
             s.commit()
             s.close()
@@ -219,6 +220,71 @@ def barcode_create(request, pk):
     return render(request, 'barcode_create.html', context={'form': form, 'Good': good})
 
 
+def barcode_update(request, pk):
+
+    s = conn_db()  # noqa: VNE001
+
+    query = s.query(Good.id, Barcode.GoodF, Barcode.BarcodeName, Barcode.Code, Barcode.Count).join(
+        Barcode, Barcode.GoodF == Good.GoodF
+    ).filter(
+        Barcode.id == pk
+    ).one()
+
+    good_f = query['GoodF']
+    barcode_name = query['BarcodeName']
+    code = query['Code']
+    count = query['Count']
+    good_id = query['id']
+
+    if request.method == 'POST':
+        form = BarcodeForm(request.POST)
+        if form.is_valid():
+            barcode_name = form.cleaned_data.get('BarcodeName')
+            code = form.cleaned_data['Code']
+            count = form.cleaned_data['Count']
+
+            instance = s.query(Barcode).filter(Barcode.id == pk)
+
+            instance.update({
+                Barcode.Code: code,
+                Barcode.Count: count,
+                Barcode.Updated: 1.0,
+            })
+            s.commit()
+            s.close()
+            return HttpResponseRedirect(f'/scanok/goods/update/{good_id}/')
+
+    form = BarcodeForm(initial={
+        'GoodF': good_f.zfill(6),
+        'BarcodeName': barcode_name,
+        'Code': code.zfill(6),
+        'Count': count,
+    })
+
+    return render(request, 'barcode_update.html', context={'form': form})
+
+
+def barcode_delete(request, pk):
+
+    s = conn_db()  # noqa: VNE001
+
+    instance = s.query(Good.id, Barcode.BarcodeName).join(
+        Barcode, Barcode.GoodF == Good.GoodF
+    ).filter(
+        Barcode.id == pk
+    ).one()
+
+    barcode_name = instance['BarcodeName']
+    good_id = instance['id']
+
+    if request.method == 'POST':
+        s.query(Barcode).filter(Barcode.id == pk).update({Barcode.Deleted: 1})
+        s.commit()
+        return HttpResponseRedirect(f'/scanok/goods/update/{good_id}/')
+
+    return render(request, 'barcode_delete.html', context={'BarcodeName': barcode_name})
+
+
 def barcode_assign(request, pk):
     barcode = request.session.get('entered_barcode')
     code = request.session.get('entered_code')
@@ -232,7 +298,9 @@ def barcode_assign(request, pk):
     instance.update({
         Barcode.GoodF: good_f,
         Barcode.Code: code,
-        Barcode.Count: count
+        Barcode.Count: count,
+        Barcode.Updated: 1.0,
+        Barcode.Deleted: 0.0,
     })
     s.commit()
     s.close()
@@ -312,7 +380,7 @@ class Partner(ListView):
 
     def get_queryset(self):
         s = conn_db()  # noqa: VNE001
-        return s.query(Partners).order_by(desc(Partners.PartnerF))
+        return s.query(Partners).order_by(-Partners.id)
 
 
 def partner_delete(request, pk):

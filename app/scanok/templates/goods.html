@@ -74,12 +74,14 @@
                             </thead>
 
                             {% for barcode in item.1 %}
+                            {% if barcode.Deleted == False %}
                             <tr>
                                 <td>{{ barcode.GoodF|zfill:6 }}</td>
                                 <td>{{ barcode.Code }}</td>
                                 <td>{{ barcode.BarcodeName }}</td>
                                 <td>{{ barcode.Count }}</td>
                             </tr>
+                            {% endif %}
                             {% endfor %}
                         </table>
 

@@ -44,6 +44,7 @@
         </thead>
 
         {% for barcode in barcode_list %}
+        {% if barcode.Deleted == False %}
         <tr>
             <td>{{ barcode.GoodF|zfill:6 }}</td>
             <td>{{ barcode.Code }}</td>
@@ -54,15 +55,17 @@
                     <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton2"
                             data-bs-toggle="dropdown" aria-expanded="false"></button>
                     <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
-                        <li><a class="dropdown-item" href="#">Edit</a>
+                        <li><a class="dropdown-item" href="{% url 'scanok:update_barcode' barcode.id %}">Edit</a>
                         </li>
-                        <li><a class="dropdown-item" href="#">Delete</a>
+                        <li><a class="dropdown-item" href="{% url 'scanok:delete_barcode' barcode.id %}">Delete</a>
                         </li>
                     </ul>
                 </div>
             </td>
         </tr>
+        {% endif %}
         {% endfor %}
     </table>
 </div>
+
 {% endblock content %}

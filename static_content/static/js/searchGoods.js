@@ -71,13 +71,15 @@ searchField.addEventListener('keyup', (e) => {
                                 const barcodes=document.querySelector('.barcodes_'+ item.GoodF)
 
                                 item.Barcode.forEach((bar) => {
-                                     barcodes.innerHTML +=`
-                                     <tr>
-                                        <td>${bar.GoodF}</td>
-                                        <td>${bar.Code}</td>
-                                        <td>${bar.BarcodeName}</td>
-                                        <td>${bar.Count}</td>
-                                     </tr>`
+                                    if (bar.Deleted == false) {
+                                       barcodes.innerHTML +=`
+                                         <tr>
+                                            <td>${bar.GoodF}</td>
+                                            <td>${bar.Code}</td>
+                                            <td>${bar.BarcodeName}</td>
+                                            <td>${bar.Count}</td>
+                                         </tr>`
+                                };
                                 });
 
                                 `</table>

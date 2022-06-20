@@ -15,6 +15,8 @@ urlpatterns = [
     path('goods/search-goods/', csrf_exempt(scanok_views.search_goods), name='search_goods'),
 
     path('goods/add_barcode/<int:pk>/', scanok_views.barcode_create, name='add_barcode'),
+    path('goods/update_barcode/<int:pk>/', scanok_views.barcode_update, name='update_barcode'),
+    path('goods/delete_barcode/<int:pk>/', scanok_views.barcode_delete, name='delete_barcode'),
     path('goods/assign_barcode/<int:pk>/', scanok_views.barcode_assign, name='assign_barcode'),
 
     path('stores/', scanok_views.Store.as_view(), name='stores'),
