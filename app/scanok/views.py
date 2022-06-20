@@ -2,8 +2,6 @@ import json
 
 from accounts.models import Device
 
-from crum import get_current_user
-
 from django.conf import settings
 from django.http import Http404, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
@@ -19,8 +17,8 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 
 
-def conn_db():
-    current_id = get_current_user().id
+def conn_db(request):
+    current_id = request.user.id
     try:
         database = Device.objects.get(user_id=current_id, current=True).name
     except Device.DoesNotExist:
@@ -34,8 +32,9 @@ def conn_db():
         return s
 
 
-def good_barcode_list(pk=None):
-    s = conn_db()  # noqa: VNE001
+def good_barcode_list(request, pk=None):
+
+    s = conn_db(request)  # noqa: VNE001
     if pk:
         query = s.query(Good, Barcode).join(
             Barcode, Barcode.GoodF == Good.GoodF
@@ -65,7 +64,7 @@ class Goods(ListView):
     context_object_name = 'goods_list'
 
     def get_queryset(self):
-        record = good_barcode_list()
+        record = good_barcode_list(self.request)
         return record
 
 
@@ -74,12 +73,12 @@ class GoodsDetails(ListView):
     context_object_name = 'details_list'
 
     def get_queryset(self):
-        record = good_barcode_list(self.kwargs['pk'])
+        record = good_barcode_list(self.request, self.kwargs['pk'])
         return record
 
 
 def good_update(request, pk):
-    record = good_barcode_list(pk)
+    record = good_barcode_list(request, pk)
 
     barcode_list = record[0][1]
 
@@ -90,7 +89,7 @@ def good_update(request, pk):
     good_price = value.Price
     good_unit = value.Unit
 
-    s = conn_db()  # noqa: VNE001
+    s = conn_db(request)  # noqa: VNE001
     instance = s.query(Good).filter(Good.id == pk)
     if request.method == 'POST':
         form = GoodForm(request.POST)
@@ -119,7 +118,7 @@ def good_update(request, pk):
 
 
 def good_create(request):
-    s = conn_db()  # noqa: VNE001
+    s = conn_db(request)  # noqa: VNE001
     last_good = s.query(Good.GoodF).order_by(Good.GoodF)[-1]
     if request.method == 'POST':
         form = GoodForm(request.POST)
@@ -146,7 +145,7 @@ def good_create(request):
 
 
 def good_delete(request, pk):
-    s = conn_db()  # noqa: VNE001
+    s = conn_db(request)  # noqa: VNE001
     good = s.query(Good).filter(Good.id == pk)
 
     if request.method == 'POST':
@@ -164,7 +163,7 @@ def search_goods(request):
     if request.method == 'POST':
         search = json.loads(request.body).get('searchText')
 
-        s = conn_db()  # noqa: VNE001
+        s = conn_db(request)  # noqa: VNE001
         goods = s.query(Good, Barcode).join(
             Barcode, Barcode.GoodF == Good.GoodF
         ).filter(or_(Barcode.BarcodeName == search, Good.GoodF == search, Good.Name.contains(search)))
@@ -189,7 +188,7 @@ def search_goods(request):
 
 
 def barcode_create(request, pk):
-    s = conn_db()  # noqa: VNE001
+    s = conn_db(request)  # noqa: VNE001
 
     good = s.query(Good).filter(Good.id == pk).one()
     good_f = good.GoodF
@@ -222,7 +221,7 @@ def barcode_create(request, pk):
 
 def barcode_update(request, pk):
 
-    s = conn_db()  # noqa: VNE001
+    s = conn_db(request)  # noqa: VNE001
 
     query = s.query(Good.id, Barcode.GoodF, Barcode.BarcodeName, Barcode.Code, Barcode.Count).join(
         Barcode, Barcode.GoodF == Good.GoodF
@@ -266,7 +265,7 @@ def barcode_update(request, pk):
 
 def barcode_delete(request, pk):
 
-    s = conn_db()  # noqa: VNE001
+    s = conn_db(request)  # noqa: VNE001
 
     instance = s.query(Good.id, Barcode.BarcodeName).join(
         Barcode, Barcode.GoodF == Good.GoodF
@@ -291,7 +290,7 @@ def barcode_assign(request, pk):
     count = request.session.get('entered_count')
     good_f = request.session.get('good_f')
 
-    s = conn_db()  # noqa: VNE001
+    s = conn_db(request)  # noqa: VNE001
 
     instance = s.query(Barcode).filter(Barcode.BarcodeName == barcode)
 
@@ -318,7 +317,7 @@ class Store(ListView):
     context_object_name = 'stores_list'
 
     def get_queryset(self):
-        s = conn_db()  # noqa: VNE001
+        s = conn_db(self.request)  # noqa: VNE001
         return s.query(Stores)
 
 
@@ -327,12 +326,12 @@ class Users(ListView):
     context_object_name = 'users_list'
 
     def get_queryset(self):
-        s = conn_db()  # noqa: VNE001
+        s = conn_db(self.request)  # noqa: VNE001
         return s.query(User).all()
 
 
 def user_create(request):
-    s = conn_db()  # noqa: VNE001
+    s = conn_db(request)  # noqa: VNE001
     last_userf = s.query(User.UserF).order_by(User.UserF)[-1]
     if request.method == 'POST':
         form = UserForm(request.POST)
@@ -362,7 +361,7 @@ def user_create(request):
 
 
 def user_delete(request, pk):
-    s = conn_db()  # noqa: VNE001
+    s = conn_db(request)  # noqa: VNE001
     instance = s.query(User).filter(User.id == pk)
     if request.method == 'POST':
         instance.update({User.Deleted: 1})
@@ -379,12 +378,12 @@ class Partner(ListView):
     context_object_name = 'partners_list'
 
     def get_queryset(self):
-        s = conn_db()  # noqa: VNE001
+        s = conn_db(self.request)  # noqa: VNE001
         return s.query(Partners).order_by(-Partners.id)
 
 
 def partner_delete(request, pk):
-    s = conn_db()  # noqa: VNE001
+    s = conn_db(request)  # noqa: VNE001
     instance = s.query(Partners).filter(Partners.id == pk)
     if request.method == 'POST':
         instance.update({Partners.Deleted: 1})
@@ -396,7 +395,7 @@ def partner_delete(request, pk):
 
 
 def partner_update(request, pk):
-    s = conn_db()  # noqa: VNE001
+    s = conn_db(request)  # noqa: VNE001
     instance = s.query(Partners).filter(Partners.id == pk)
     partner_f = s.query(Partners.PartnerF).filter(Partners.id == pk).one()
     name_partner = s.query(Partners.NamePartner).filter(Partners.id == pk).one()
@@ -425,7 +424,7 @@ def partner_update(request, pk):
 def partner_create(request):
     if request.method == 'POST':
         form = PartnerForm(request.POST)
-        s = conn_db()  # noqa: VNE001
+        s = conn_db(request)  # noqa: VNE001
         if form.is_valid():
             partner_f = form.cleaned_data.get('PartnerF')
             if not partner_f:
@@ -456,7 +455,7 @@ class Dochead(ListView):
     context_object_name = 'dochead_list'
 
     def get_queryset(self):
-        s = conn_db()  # noqa: VNE001
+        s = conn_db(self.request)  # noqa: VNE001
         record = s.query(
             DocHead.DocType,
             DocHead.Comment,
