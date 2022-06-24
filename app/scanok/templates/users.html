@@ -20,30 +20,31 @@
                 <th scope="col">UserF</th>
                 <th scope="col">Name</th>
                 <th scope="col">Login</th>
-                <th scope="col">Password</th>
-                <th scope="col">Actions</th>
+
+                <th scope="col"></th>
             </tr>
             {% for row in users_list %}
             {% if row.UserF == -1 %}
             <!-- continue -->
             {% else %}
+            {% if row.Deleted == False %}
             <tr>
                 <td>{{row.UserF}}</td>
                 <td>{{row.Name}}</td>
                 <td>{{row.Login}}</td>
-                <td>{{row.Password}}</td>
+
                 <td width="10" align="center">
                     <div class="dropdown">
                         <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton2"
                                 data-bs-toggle="dropdown" aria-expanded="false"></button>
                         <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
-                            <li><a class="dropdown-item active" href="#">Detail</a></li>
-                            <li><a class="dropdown-item" href="#">Edit</a></li>
+                            <li><a class="dropdown-item" href="{% url 'scanok:user_update' row.id %}">Edit</a></li>
                             <li><a class="dropdown-item" href="{% url 'scanok:user_delete' row.id %}">Delete</a></li>
                         </ul>
                     </div>
                 </td>
             </tr>
+            {% endif %}
             {% endif %}
             {% endfor %}
 

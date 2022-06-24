@@ -85,6 +85,7 @@ class User(Base):
 class Stores(Base):
     __tablename__ = 'Stores'
 
+    id = Column(BigInteger, primary_key=True, autoincrement=True)  # noqa: VNE003, A003
     StoreF = Column(String(50), primary_key=True, nullable=False)
     NameStore = Column(String(50), nullable=False)
     Deleted = Column(BIT, nullable=False)
@@ -203,11 +204,22 @@ class DocHead(Base):
         (8, 'сбор штрихкодов с характеристиками'),
     ]
 
+    DS_CHOICES = [
+        (0, 'Новый'),
+        (1, 'В работе'),
+        (2, 'Завершен'),
+        (3, 'Завершен с ошибками'),
+        (4, 'Повторно загруженный'),
+        (5, 'Синхронизирован'),
+        (6, 'получен ТСД'),
+        (7, 'анулирован ТСД'),
+    ]
+
     __tablename__ = 'DocHead'
 
     Comment = Column(String(50), nullable=True)
     CreateDate = Column(BigInteger, nullable=False)
-    DocStatus = Column(SMALLINT, nullable=False)
+    DocStatus = Column(ChoiceType(DS_CHOICES, impl=SmallInteger()), nullable=True)
     PartnerF = Column(String(50), ForeignKey('Partners.PartnerF'), nullable=True)
     MainStoreF = Column(String(50), ForeignKey('Stores.StoreF'), nullable=True)
     AlternateStoreF = Column(String(50), nullable=True)

@@ -3,14 +3,19 @@ import json
 from accounts.models import Device
 
 from django.conf import settings
+from django.contrib import messages
 from django.http import Http404, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse_lazy
-from django.views.generic import ListView
+from django.views.generic import DeleteView, ListView, UpdateView
 
-from scanok.forms import BarcodeForm, GoodForm, PartnerForm, UserForm
+from django_tables2 import SingleTableView
+
+from scanok.forms import BarcodeForm, GoodForm, PartnerForm, StoreForm, UserForm
 from scanok.hashmd5 import str2hash
 from scanok.sqlclasstable import Barcode, DocHead, Good, Partners, Stores, User
+from scanok.tables import DocHeadTable
+from scanok.util import next_f
 
 from sqlalchemy import create_engine, or_
 from sqlalchemy.exc import IntegrityError
@@ -119,13 +124,19 @@ def good_update(request, pk):
 
 def good_create(request):
     s = conn_db(request)  # noqa: VNE001
-    last_good = s.query(Good.GoodF).order_by(Good.GoodF)[-1]
+    last_good = s.query(Good.GoodF).order_by(-Good.id).first()[0]
+
+    if last_good:
+        next_good_f = next_f(last_good)
+    else:
+        next_good_f = '1'
+
     if request.method == 'POST':
         form = GoodForm(request.POST)
         if form.is_valid():
             good_f = form.cleaned_data.get('GoodF')
             if not good_f:
-                good_f = str(int(last_good[0]) + 1)
+                good_f = next_good_f
 
             name = form.cleaned_data.get('Name')
             price = form.cleaned_data['Price']
@@ -140,7 +151,7 @@ def good_create(request):
             return HttpResponseRedirect(f'/scanok/goods/add_barcode/{pk}/')
 
     else:
-        form = GoodForm(initial={'GoodF': str(int(last_good[0]) + 1), 'Unit': 'шт.'})
+        form = GoodForm(initial={'GoodF': next_good_f, 'Unit': 'шт.'})
     return render(request, 'good_create.html', context={'form': form})
 
 
@@ -321,6 +332,81 @@ class Store(ListView):
         return s.query(Stores)
 
 
+def store_create(request):
+    s = conn_db(request)  # noqa: VNE001
+
+    last_store_f = s.query(Stores.StoreF).order_by(-Stores.id).first()[0]
+
+    if last_store_f:
+        next_store_f = next_f(last_store_f)
+    else:
+        next_store_f = '1'
+
+    if request.method == 'POST':
+        form = StoreForm(request.POST)
+        if form.is_valid():
+            store_f = form.cleaned_data.get('StoreF')
+            name_store = form.cleaned_data.get('NameStore')
+
+            if not store_f:
+                store_f = next_store_f
+            try:
+                c1 = Stores(StoreF=store_f, NameStore=name_store, Deleted=0, Updated=1)
+                if c1:
+                    s.add(c1)
+                    s.commit()
+                    s.close()
+            except IntegrityError:
+                messages.error(request, f'StoreF - {store_f} already used')
+                return HttpResponseRedirect('/scanok/stores/create/')
+
+            return HttpResponseRedirect('/scanok/stores/')
+    else:
+        form = StoreForm(initial={'StoreF': next_store_f})
+    return render(request, 'store_create.html', context={'form': form})
+
+
+def store_delete(request, pk):
+    s = conn_db(request)  # noqa: VNE001
+    instance = s.query(Stores).filter(Stores.id == pk)
+    if request.method == 'POST':
+        instance.update({Stores.Deleted: 1})
+        s.commit()
+        s.close()
+        return HttpResponseRedirect('/scanok/stores/')
+    else:
+        return render(request, 'store_delete.html', context={'store': instance})
+
+
+def store_update(request, pk):
+    s = conn_db(request)  # noqa: VNE001
+    instance = s.query(Stores).filter(Stores.id == pk)
+
+    store = instance.one()
+    store_f = store.StoreF
+    name_store = store.NameStore
+
+    if request.method == 'POST':
+        form = StoreForm(request.POST)
+        if form.is_valid():
+            name_store = form.cleaned_data.get('NameStore')
+
+            instance.update({
+                Stores.NameStore: name_store,
+                Stores.Updated: 1.0,
+            })
+
+            s.commit()
+            s.close()
+
+            return HttpResponseRedirect('/scanok/stores/')
+
+    else:
+        form = StoreForm(initial={'StoreF': store_f, 'NameStore': name_store})
+
+    return render(request, 'store_update.html', context={'form': form})
+
+
 class Users(ListView):
     template_name = 'users.html'
     context_object_name = 'users_list'
@@ -332,17 +418,27 @@ class Users(ListView):
 
 def user_create(request):
     s = conn_db(request)  # noqa: VNE001
-    last_userf = s.query(User.UserF).order_by(User.UserF)[-1]
+
+    last_user = s.query(User.UserF).order_by(-User.id).first()[0]
+
+    if last_user:
+        next_user_f = last_user + 1
+    else:
+        next_user_f = '1'
+
     if request.method == 'POST':
         form = UserForm(request.POST)
         if form.is_valid():
             user_f = form.cleaned_data.get('UserF')
+
             if not user_f:
-                user_f = str(int(last_userf[0]) + 1)
+                user_f = next_user_f
 
             login = form.cleaned_data.get('Login')
             if s.query(User.Login).filter(User.Login == login).first():
-                return reverse_lazy('user_create')
+                messages.error(request, f'Login - {login} already used')
+                return HttpResponseRedirect('/scanok/user/create/')
+
             name = form.cleaned_data.get('Name')
             password = form.cleaned_data['Password']
 
@@ -356,8 +452,50 @@ def user_create(request):
             return HttpResponseRedirect('/scanok/users/')
 
     else:
-        form = UserForm(initial={'UserF': str(int(last_userf[0]) + 1)})
+        form = UserForm(initial={'UserF': next_user_f})
     return render(request, 'user_create.html', context={'form': form})
+
+
+def user_update(request, pk):
+    s = conn_db(request)  # noqa: VNE001
+    instance = s.query(User).filter(User.id == pk)
+
+    user = instance.one()
+
+    user_f = user.UserF
+    name = user.Name
+    login = user.Login
+    password_old = user.Password
+
+    if request.method == 'POST':
+        form = UserForm(request.POST)
+        if form.is_valid():
+
+            login = form.cleaned_data.get('Login')
+            name = form.cleaned_data.get('Name')
+            password = form.cleaned_data.get('Password')
+
+            if not password:
+                password = password_old
+            else:
+                password = str2hash(password)
+
+            instance.update({
+                User.Login: login,
+                User.Name: name,
+                User.Password: password,
+                User.Updated: 1.0
+            })
+
+            s.commit()
+            s.close()
+
+            return HttpResponseRedirect('/scanok/users/')
+
+    else:
+        form = UserForm(initial={'UserF': user_f, 'Login': login, 'Name': name})
+
+    return render(request, 'user_update.html', context={'form': form})
 
 
 def user_delete(request, pk):
@@ -397,9 +535,13 @@ def partner_delete(request, pk):
 def partner_update(request, pk):
     s = conn_db(request)  # noqa: VNE001
     instance = s.query(Partners).filter(Partners.id == pk)
-    partner_f = s.query(Partners.PartnerF).filter(Partners.id == pk).one()
-    name_partner = s.query(Partners.NamePartner).filter(Partners.id == pk).one()
-    discount = s.query(Partners.Discount).filter(Partners.id == pk).one()
+
+    partners = instance.one()
+
+    partner_f = partners.PartnerF
+    name_partner = partners.NamePartner
+    discount = partners.Discount
+
     if request.method == 'POST':
         form = PartnerForm(request.POST)
         if form.is_valid():
@@ -417,23 +559,30 @@ def partner_update(request, pk):
             return HttpResponseRedirect('/scanok/partners/')
 
     else:
-        form = PartnerForm(initial={'PartnerF': partner_f[0], 'NamePartner': name_partner[0], 'Discount': discount[0]})
+        form = PartnerForm(initial={'PartnerF': partner_f, 'NamePartner': name_partner, 'Discount': discount})
     return render(request, 'partner_update.html', context={'form': form})
 
 
 def partner_create(request):
+    s = conn_db(request)  # noqa: VNE001
+
+    last_partner_f = s.query(Partners.PartnerF).order_by(-Partners.id).first()[0]
+
+    if last_partner_f:
+        next_partner_f = next_f(last_partner_f)
+    else:
+        next_partner_f = '1'
+
     if request.method == 'POST':
         form = PartnerForm(request.POST)
-        s = conn_db(request)  # noqa: VNE001
+
         if form.is_valid():
             partner_f = form.cleaned_data.get('PartnerF')
             if not partner_f:
-                queryset = s.query(Partners.PartnerF).order_by(Partners.PartnerF)[-1]
-                partner_f = str(int(queryset[0]) + 1)
+                partner_f = next_partner_f
             name_partner = form.cleaned_data.get('NamePartner')
-            if s.query(Partners.NamePartner).filter(Partners.NamePartner == name_partner).first():
-                return reverse_lazy('partner_create')
             discount = form.cleaned_data.get('Discount')
+
             if not discount:
                 discount = 0.0
 
@@ -445,14 +594,13 @@ def partner_create(request):
             return HttpResponseRedirect('/scanok/partners/')
 
     else:
-        form = PartnerForm()
+        form = PartnerForm(initial={'PartnerF': next_partner_f, 'Discount': 0.0})
     return render(request, 'partner_create.html', context={'form': form})
 
 
-class Dochead(ListView):
+class DocheadTable(SingleTableView):
+    table_class = DocHeadTable
     template_name = 'dochead.html'
-    paginate_by = 25
-    context_object_name = 'dochead_list'
 
     def get_queryset(self):
         s = conn_db(self.request)  # noqa: VNE001
@@ -470,3 +618,6 @@ class Dochead(ListView):
         ).all()
 
         return record
+
+
+

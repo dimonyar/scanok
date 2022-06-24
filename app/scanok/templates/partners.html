@@ -17,7 +17,7 @@
                 <th scope="col">PartnerF</th>
                 <th scope="col">NamePartner</th>
                 <th scope="col">Discount</th>
-                <th scope="col">Actions</th>
+                <th scope="col"></th>
             </tr>
 
             {% for row in partners_list %}
@@ -31,7 +31,6 @@
                         <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton2"
                                 data-bs-toggle="dropdown" aria-expanded="false"></button>
                         <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
-                            <li><a class="dropdown-item active" href="#">Detail</a></li>
                             <li><a class="dropdown-item" href="{% url 'scanok:partner_update' row.id %}">Edit</a></li>
                             <li><a class="dropdown-item" href="{% url 'scanok:partner_delete' row.id %}">Delete</a></li>
                         </ul>

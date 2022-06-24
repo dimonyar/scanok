@@ -25,7 +25,7 @@ fetch("/accounts/devices/current-device/", {
 searchField.addEventListener('keyup', (e) => {
     const searchValue = e.target.value;
 
-    if(searchValue.trim().length>0){
+    if(searchValue.trim().length>3){
         tbody.innerHTML = "";
         console.log('searchValue', searchValue);
 
@@ -79,7 +79,7 @@ searchField.addEventListener('keyup', (e) => {
     else{
         tableOutput.style.display='none';
         appTable.style.display='block';
-        location. reload()
+
     }
 
 });

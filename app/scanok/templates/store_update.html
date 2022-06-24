@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+{% block title %}Partner Update{% endblock %}
+{% block content %}
+
+<form method="post">
+    {% csrf_token %}
+    <div class="form-row">
+        <div class="form-group col-md-6 mb-0">
+        {{ form.StoreF|attr:"disabled=True"|as_crispy_field }}
+
+        {{ form.NameStore|as_crispy_field }}
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Update</button>
+</form>
+
+
+{% endblock content %}

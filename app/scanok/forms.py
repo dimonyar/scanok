@@ -9,9 +9,9 @@ class PartnerForm(forms.Form):
 
 class GoodForm(forms.Form):
     GoodF = forms.CharField(label='GoodF', required=False, max_length=30)
-    Name = forms.CharField(label='Name', required=False, max_length=300)
-    Price = forms.DecimalField(label='Price', required=False, decimal_places=2)
-    Unit = forms.CharField(label='Unit', required=False, max_length=20)
+    Name = forms.CharField(label='Name', required=True, max_length=300)
+    Price = forms.DecimalField(label='Price', required=True, decimal_places=2)
+    Unit = forms.CharField(label='Unit', required=True, max_length=20)
 
 
 class BarcodeForm(forms.Form):
@@ -22,7 +22,7 @@ class BarcodeForm(forms.Form):
 
 
 class UserForm(forms.Form):
-    UserF = forms.CharField(label='UserF', required=True, max_length=50)
+    UserF = forms.CharField(label='UserF', required=False, max_length=50)
     Login = forms.CharField(label='Login', required=True, max_length=50)
     Name = forms.CharField(label='Name', required=True, max_length=50)
     Password = forms.CharField(label='Password', widget=forms.PasswordInput)
@@ -34,9 +34,6 @@ class UserForm(forms.Form):
         return cleaned_data
 
 
-class TerminalBase(forms.Form):
-    SerialNumber = (
-        ('MT9051-2WE-8K03195', 'MT9051-2WE-8K03195'),
-        ('cb6321f3a9b155db5f1c42c322efd47b', 'cb6321f3a9b155db5f1c42c322efd47b'),
-    )
-    Base = forms.ChoiceField(choices=SerialNumber)
+class StoreForm(forms.Form):
+    StoreF = forms.CharField(label='GoodF', required=False, max_length=50)
+    NameStore = forms.CharField(label='NameStore', required=True, max_length=50)

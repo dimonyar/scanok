@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load extra_teg %}
+{% load render_table from django_tables2 %}
 
 {% block title %}DocHead{% endblock %}
 
@@ -14,44 +15,7 @@
             </form>
             </p>
         </div>
-        <table class="table table-striped table-hover">
-            <tr>
-                <th scope="col">DocType</th>
-                <th scope="col">Comment</th>
-                <th scope="col">NamePartner</th>
-                <th scope="col">CreateDate</th>
-                <th scope="col">DocStatus</th>
-                <th scope="col">NameStore</th>
-                <th scope="col">Actions</th>
-            </tr>
-            {% for row in dochead_list %}
-
-            <tr>
-                <td>
-                    {{ row.DocType }}
-                </td>
-                <td>{{row.Comment}}</td>
-                <td>{{row.NamePartner}}</td>
-                <td>
-                    {{ row.CreateDate|tact_to_data }}
-                </td>
-                <td>{{row.DocStatus}}</td>
-                <td>{{row.NameStore}}</td>
-                <td width="10" align="center">
-                    <div class="dropdown">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton2"
-                                data-bs-toggle="dropdown" aria-expanded="false"></button>
-                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
-                            <li><a class="dropdown-item active" href="#">Detail</a></li>
-                            <li><a class="dropdown-item" href="#">Edit</a></li>
-                            <li><a class="dropdown-item" href="#">Delete</a></li>
-                        </ul>
-                    </div>
-                </td>
-            </tr>
-            {% endfor %}
-
-        </table>
+        {% render_table table %}
     </div>
 </div>
 {% include 'includes/pagination.html' %}

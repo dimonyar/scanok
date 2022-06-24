@@ -20,14 +20,21 @@ urlpatterns = [
     path('goods/assign_barcode/<int:pk>/', scanok_views.barcode_assign, name='assign_barcode'),
 
     path('stores/', scanok_views.Store.as_view(), name='stores'),
+    path('stores/create/', scanok_views.store_create, name='store_create'),
+    path('stores/delete/<int:pk>/', scanok_views.store_delete, name='store_delete'),
+    path('stores/update/<int:pk>/', scanok_views.store_update, name='store_update'),
+
     path('users/', scanok_views.Users.as_view(), name='users'),
+    path('users/create/', scanok_views.user_create, name='user_create'),
+    path('users/delete/<int:pk>/', scanok_views.user_delete, name="user_delete"),
+    path('users/update/<int:pk>/', scanok_views.user_update, name="user_update"),
+
     path('partners/', scanok_views.Partner.as_view(), name='partners'),
-    path('dochead/', scanok_views.Dochead.as_view(), name='dochead'),
+    path('dochead/', scanok_views.DocheadTable.as_view(), name='dochead'),
 
     path('partners/create/', scanok_views.partner_create, name='partner_create'),
     path('partners/delete/<int:pk>/', scanok_views.partner_delete, name="partner_delete"),
     path('partners/update/<int:pk>/', scanok_views.partner_update, name="partner_update"),
 
-    path('users/create/', scanok_views.user_create, name='user_create'),
-    path('users/delete/<int:pk>/', scanok_views.user_delete, name="user_delete"),
+
 ]
