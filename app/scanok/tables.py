@@ -1,5 +1,3 @@
-from scanok.sqlclasstable import DocHead
-
 import django_tables2 as tables
 
 

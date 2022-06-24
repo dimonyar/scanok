@@ -6,8 +6,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.http import Http404, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
-from django.urls import reverse_lazy
-from django.views.generic import DeleteView, ListView, UpdateView
+from django.views.generic import ListView
 
 from django_tables2 import SingleTableView
 
@@ -618,6 +617,3 @@ class DocheadTable(SingleTableView):
         ).all()
 
         return record
-
-
-
