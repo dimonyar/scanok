@@ -217,9 +217,10 @@ class DocHead(Base):
 
     __tablename__ = 'DocHead'
 
+    id = Column(BigInteger, autoincrement=True, primary_key=True)  # noqa: VNE003, A003
     Comment = Column(String(50), nullable=True)
     CreateDate = Column(BigInteger, nullable=False)
-    DocStatus = Column(ChoiceType(DS_CHOICES, impl=SmallInteger()), nullable=True)
+    DocStatus = Column(ChoiceType(DS_CHOICES, impl=SmallInteger()), nullable=False)
     PartnerF = Column(String(50), ForeignKey('Partners.PartnerF'), nullable=True)
     MainStoreF = Column(String(50), ForeignKey('Stores.StoreF'), nullable=True)
     AlternateStoreF = Column(String(50), nullable=True)

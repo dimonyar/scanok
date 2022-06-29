@@ -1,4 +1,6 @@
 import json
+import uuid
+from datetime import datetime
 
 from accounts.models import Device
 
@@ -10,7 +12,8 @@ from django.views.generic import ListView
 
 from django_tables2 import SingleTableView
 
-from scanok.forms import BarcodeForm, GoodForm, PartnerForm, StoreForm, UserForm
+from scanok.epochtime import data_to_tact
+from scanok.forms import BarcodeForm, DocheadForm, GoodForm, PartnerForm, StoreForm, UserForm
 from scanok.hashmd5 import str2hash
 from scanok.sqlclasstable import Barcode, DocHead, Good, Partners, Stores, User
 from scanok.tables import DocHeadTable
@@ -600,20 +603,90 @@ def partner_create(request):
 class DocheadTable(SingleTableView):
     table_class = DocHeadTable
     template_name = 'dochead.html'
+    paginate_by = 25
 
     def get_queryset(self):
         s = conn_db(self.request)  # noqa: VNE001
         record = s.query(
+            DocHead.id,
             DocHead.DocType,
             DocHead.Comment,
             Partners.NamePartner,
             DocHead.CreateDate,
             DocHead.DocStatus,
             Stores.NameStore,
-        ).join(
+        ).outerjoin(
             Partners, Partners.PartnerF == DocHead.PartnerF
-        ).join(
+        ).outerjoin(
             Stores, Stores.StoreF == DocHead.MainStoreF
         ).all()
 
         return record
+
+
+def doc_delete(request, pk):
+    s = conn_db(request)  # noqa: VNE001
+    instance = s.query(DocHead).filter(DocHead.id == pk)
+    if request.method == 'POST':
+        instance.delete()
+        s.commit()
+        s.close()
+        return HttpResponseRedirect('/scanok/dochead/')
+    else:
+        return render(request, 'dochead_delete.html', context={'dochead': instance})
+
+
+def doc_create(request):
+    s = conn_db(request)  # noqa: VNE001
+
+    users = s.query(User.UserF, User.Name).all()
+    partners = s.query(Partners.PartnerF, Partners.NamePartner).order_by(-Partners.id)
+    stores = s.query(Stores.StoreF, Stores.NameStore).order_by(Stores.NameStore)
+
+    if request.method == 'POST':
+        form = DocheadForm(request.POST, UserF=users, PartnerF=partners, MainStoreF=stores)
+
+        if form.is_valid():
+            comment = form.cleaned_data.get('Comment')
+            partner = form.cleaned_data.get('PartnerF')
+            main_store = form.cleaned_data.get('MainStoreF')
+            alternate_store = form.cleaned_data.get('AlternateStoreF')
+            doctype = form.cleaned_data.get('DocType')
+            user = form.cleaned_data.get('UserF')
+            if not user:
+                user = -1
+            barcodedocu = form.cleaned_data.get('BarcodeDocu')
+            discount = form.cleaned_data.get('Discount')
+            if not discount:
+                discount = 0.0
+
+            create_date = data_to_tact(datetime.now())
+
+            c1 = DocHead(
+                DocHeadF=uuid.uuid4(),
+                Comment=comment,
+                PartnerF=partner,
+                MainStoreF=main_store,
+                AlternateStoreF=alternate_store,
+                DocType=doctype,
+                UserF=user,
+                BarcodeDocu=barcodedocu,
+                CreateDate=create_date,
+                DocStatus=0,
+                Discount=discount,
+                Deleted=0,
+                Updated=1,
+                UpdatedFromTSD=0,
+                UpdateFrom1C=1
+            )
+
+            s.add(c1)
+            s.commit()
+            s.close()
+
+            return HttpResponseRedirect('/scanok/dochead/')
+
+    else:
+        form = DocheadForm(initial={'Discount': 0.0}, UserF=users, PartnerF=partners, MainStoreF=stores)
+
+    return render(request, 'doc_create.html', context={'form': form})

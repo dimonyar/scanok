@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Delete{% endblock %}
+{% block content %}
+{% for i in dochead %}
+<p> Do you want to delete Document {{ i.Comment }}? </p>
+{% endfor %}
+<form method="post">
+    {% csrf_token %}
+    <button type="submit">Delete</button>
+</form>
+
+
+
+{% endblock content %}

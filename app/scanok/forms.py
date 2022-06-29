@@ -37,3 +37,33 @@ class UserForm(forms.Form):
 class StoreForm(forms.Form):
     StoreF = forms.CharField(label='GoodF', required=False, max_length=50)
     NameStore = forms.CharField(label='NameStore', required=True, max_length=50)
+
+
+class DocheadForm(forms.Form):
+    Comment = forms.CharField(label='Comment', required=False, max_length=50)
+    PartnerF = forms.ChoiceField(choices=())
+    MainStoreF = forms.ChoiceField(choices=())
+    AlternateStoreF = forms.ChoiceField(choices=())
+    DocType = forms.ChoiceField(choices=())
+    UserF = forms.ChoiceField(choices=())
+    BarcodeDocu = forms.CharField(label='BarcodeDocu', required=False, max_length=50)
+    Discount = forms.FloatField(label='Count', required=False)
+
+    def __init__(self, *args, **kwargs):
+        users = tuple(kwargs.pop('UserF'))
+        partners = tuple(kwargs.pop('PartnerF'))
+        stores = tuple(kwargs.pop('MainStoreF'))
+        doctype = (
+            (1, 'приходный'),
+            (2, 'расходный'),
+            (3, 'инвентаризация'),
+            (4, 'перемещение'),
+            (5, 'списание'),
+            (6, 'возврат'),
+        )
+        super().__init__(*args, **kwargs)
+        self.fields['UserF'] = forms.ChoiceField(choices=users, required=False, label='User')
+        self.fields['PartnerF'] = forms.ChoiceField(choices=partners, required=False, label='Partner')
+        self.fields['MainStoreF'] = forms.ChoiceField(choices=stores, required=False, label='MainStore')
+        self.fields['AlternateStoreF'] = forms.ChoiceField(choices=stores, required=False, label='AlternateStore')
+        self.fields['DocType'] = forms.ChoiceField(choices=doctype, required=False, label='DocType')
