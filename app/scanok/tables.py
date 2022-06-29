@@ -1,5 +1,7 @@
 import django_tables2 as tables
 
+from scanok.templatetags.extra_teg import tact_to_data
+
 
 class DocHeadTable(tables.Table):
     DocType = tables.Column()
@@ -11,6 +13,9 @@ class DocHeadTable(tables.Table):
     action = tables.TemplateColumn(
         template_name="dochead_action.html", verbose_name="", orderable=False
     )
+
+    def render_createdate(self, value):
+        return tact_to_data(value)
 
     class Meta:
         template_name = "django_tables2/bootstrap.html"

@@ -4,7 +4,7 @@
             data-bs-toggle="dropdown" aria-expanded="false"></button>
     <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
         <li><a class="dropdown-item" href="#">Edit</a></li>
-        <li><a class="dropdown-item" href="#">Delete</a>
+        <li><a class="dropdown-item" href="{% url 'scanok:dochead_delete' record.id%}">Delete</a>
         </li>
     </ul>
 </div>
