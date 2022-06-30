@@ -1,9 +1,12 @@
+from scanok import model_choices as mch
+
 from sqlalchemy import BigInteger, Boolean, Column, DateTime, Float, ForeignKey, Integer, SmallInteger, String
 from sqlalchemy.dialects.mssql import BIT, DATETIME2, IMAGE, SMALLINT, UNIQUEIDENTIFIER
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
 from sqlalchemy_utils import ChoiceType
+
 
 Base = declarative_base()
 
@@ -193,38 +196,17 @@ class ScanHistory(Base):
 
 
 class DocHead(Base):
-    DT_CHOICES = [
-        (1, 'приходный'),
-        (2, 'расходный'),
-        (3, 'инвентаризация'),
-        (4, 'перемещение'),
-        (5, 'списание'),
-        (6, 'возврат'),
-        (7, 'сбор штрихкодов'),
-        (8, 'сбор штрихкодов с характеристиками'),
-    ]
-
-    DS_CHOICES = [
-        (0, 'Новый'),
-        (1, 'В работе'),
-        (2, 'Завершен'),
-        (3, 'Завершен с ошибками'),
-        (4, 'Повторно загруженный'),
-        (5, 'Синхронизирован'),
-        (6, 'получен ТСД'),
-        (7, 'анулирован ТСД'),
-    ]
 
     __tablename__ = 'DocHead'
 
     id = Column(BigInteger, autoincrement=True, primary_key=True)  # noqa: VNE003, A003
     Comment = Column(String(50), nullable=True)
     CreateDate = Column(BigInteger, nullable=False)
-    DocStatus = Column(ChoiceType(DS_CHOICES, impl=SmallInteger()), nullable=False)
+    DocStatus = Column(SmallInteger, nullable=False)
     PartnerF = Column(String(50), ForeignKey('Partners.PartnerF'), nullable=True)
     MainStoreF = Column(String(50), ForeignKey('Stores.StoreF'), nullable=True)
     AlternateStoreF = Column(String(50), nullable=True)
-    DocType = Column(ChoiceType(DT_CHOICES, impl=SmallInteger()), nullable=True)
+    DocType = Column(ChoiceType(mch.DocHeadDocType.choices, impl=SmallInteger()), nullable=True)
     UserF = Column(BigInteger, nullable=False)
     UpdatedFromTSD = Column(BIT, nullable=False)
     UpdateFrom1C = Column(BIT, nullable=False)

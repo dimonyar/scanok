@@ -5,6 +5,7 @@ django-debug-toolbar
 django-extensions
 django-tables2
 
+
 celery~=5.2.6
 
 django-formtools
