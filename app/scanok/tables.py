@@ -14,7 +14,7 @@ class DocHeadTable(tables.Table):
         template_name="dochead_action.html", verbose_name="", orderable=False
     )
 
-    def render_createdate(self, value):
+    def render_CreateDate(self, value): # noqa N802
         return tact_to_data(value)
 
     class Meta:

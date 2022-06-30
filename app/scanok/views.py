@@ -690,3 +690,75 @@ def doc_create(request):
         form = DocheadForm(initial={'Discount': 0.0}, UserF=users, PartnerF=partners, MainStoreF=stores)
 
     return render(request, 'doc_create.html', context={'form': form})
+
+
+def doc_update(request, pk):
+    s = conn_db(request)  # noqa: VNE001
+
+    instance = s.query(DocHead).filter(DocHead.id == pk)
+
+    doc_head = instance.one()
+
+    comment = doc_head.Comment
+    user = doc_head.UserF
+    partner = doc_head.PartnerF
+    main_store = doc_head.MainStoreF
+    alternate_store = doc_head.AlternateStoreF
+    doctype_code = doc_head.DocType.code
+    barcodedocu = doc_head.BarcodeDocu
+    discount = doc_head.Discount
+
+    users = s.query(User.UserF, User.Name).all()
+    partners = s.query(Partners.PartnerF, Partners.NamePartner).order_by(-Partners.id)
+    stores = s.query(Stores.StoreF, Stores.NameStore).order_by(Stores.NameStore)
+
+    if request.method == 'POST':
+        form = DocheadForm(request.POST, UserF=users, PartnerF=partners, MainStoreF=stores)
+
+        if form.is_valid():
+            comment = form.cleaned_data.get('Comment')
+            partner = form.cleaned_data.get('PartnerF')
+            main_store = form.cleaned_data.get('MainStoreF')
+            alternate_store = form.cleaned_data.get('AlternateStoreF')
+            doctype = form.cleaned_data.get('DocType')
+            user = form.cleaned_data.get('UserF')
+            if not user:
+                user = -1
+            barcodedocu = form.cleaned_data.get('BarcodeDocu')
+            discount = form.cleaned_data.get('Discount')
+            if not discount:
+                discount = 0.0
+
+            instance.update({
+                DocHead.Comment: comment,
+                DocHead.PartnerF: partner,
+                DocHead.MainStoreF: main_store,
+                DocHead.AlternateStoreF: alternate_store,
+                DocHead.DocType: doctype,
+                DocHead.UserF: user,
+                DocHead.BarcodeDocu: barcodedocu,
+                DocHead.Discount: discount,
+                DocHead.Updated: 1,
+                DocHead.UpdateFrom1C: 1,
+                DocHead.UpdatedFromTSD: 0,
+            })
+
+            s.commit()
+            s.close()
+
+            return HttpResponseRedirect('/scanok/dochead/')
+
+    else:
+        form = DocheadForm(initial={
+            'Comment': comment,
+            'BarcodeDocu': barcodedocu,
+            'Discount': discount,
+            'DocType': doctype_code,
+            'PartnerF': partner,
+            'MainStoreF': main_store,
+            'AlternateStoreF': alternate_store,
+            'UserF': user
+
+        }, UserF=users, PartnerF=partners, MainStoreF=stores)
+
+    return render(request, 'doc_update.html', context={'form': form})
