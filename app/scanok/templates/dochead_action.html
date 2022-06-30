@@ -3,7 +3,7 @@
     <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton2"
             data-bs-toggle="dropdown" aria-expanded="false"></button>
     <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
-        <li><a class="dropdown-item" href="#">Edit</a></li>
+        <li><a class="dropdown-item" href="{% url 'scanok:dochead_update' record.id%}">Edit</a></li>
         <li><a class="dropdown-item" href="{% url 'scanok:dochead_delete' record.id%}">Delete</a>
         </li>
     </ul>
