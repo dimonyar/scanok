@@ -1,4 +1,9 @@
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Column, Layout, Row, Submit
+
 from django import forms
+
+from scanok import model_choices as mch
 
 
 class PartnerForm(forms.Form):
@@ -40,30 +45,45 @@ class StoreForm(forms.Form):
 
 
 class DocheadForm(forms.Form):
+
     Comment = forms.CharField(label='Comment', required=False, max_length=50)
-    PartnerF = forms.ChoiceField(choices=())
-    MainStoreF = forms.ChoiceField(choices=())
-    AlternateStoreF = forms.ChoiceField(choices=())
-    DocType = forms.ChoiceField(choices=())
-    UserF = forms.ChoiceField(choices=())
+    PartnerF = forms.ChoiceField(choices=(), label='PartnerF')
+    MainStoreF = forms.ChoiceField(choices=(), label='MainStoreF')
+    AlternateStoreF = forms.ChoiceField(choices=(), label='AlternateStoreF')
+    DocType = forms.ChoiceField(choices=(), label='DocType')
+    UserF = forms.ChoiceField(choices=(), label='UserF')
     BarcodeDocu = forms.CharField(label='BarcodeDocu', required=False, max_length=50)
-    Discount = forms.FloatField(label='Count', required=False)
+    Discount = forms.FloatField(label='Discount', required=False)
 
     def __init__(self, *args, **kwargs):
         users = tuple(kwargs.pop('UserF'))
         partners = tuple(kwargs.pop('PartnerF'))
         stores = tuple(kwargs.pop('MainStoreF'))
-        doctype = (
-            (1, 'приходный'),
-            (2, 'расходный'),
-            (3, 'инвентаризация'),
-            (4, 'перемещение'),
-            (5, 'списание'),
-            (6, 'возврат'),
-        )
+        doctype = mch.DocHeadDocType.choices
         super().__init__(*args, **kwargs)
         self.fields['UserF'] = forms.ChoiceField(choices=users, required=False, label='User')
         self.fields['PartnerF'] = forms.ChoiceField(choices=partners, required=False, label='Partner')
         self.fields['MainStoreF'] = forms.ChoiceField(choices=stores, required=False, label='MainStore')
         self.fields['AlternateStoreF'] = forms.ChoiceField(choices=stores, required=False, label='AlternateStore')
         self.fields['DocType'] = forms.ChoiceField(choices=doctype, required=False, label='DocType')
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Row(
+                Column('Comment', wrapper_class='col-md-6', css_class='row-fluid'),
+                Column('DocType', wrapper_class='col-md-6', css_class='row-fluid'),
+            ),
+            Row(
+                Column('PartnerF', wrapper_class='col-md-6', css_class='row-fluid'),
+                Column('UserF', wrapper_class='col-md-6', css_class='row-fluid'),
+            ),
+            Row(
+                Column('MainStoreF', wrapper_class='col-md-6', css_class='row-fluid'),
+                Column('AlternateStoreF', wrapper_class='col-md-6', css_class='row-fluid'),
+            ),
+            Row(
+                Column('Discount', wrapper_class='col-md-6', css_class='row-fluid'),
+                Column('BarcodeDocu', wrapper_class='col-md-6', css_class='row-fluid'),
+            ),
+            Submit('submit', 'Apply')
+        )

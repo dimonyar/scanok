@@ -619,7 +619,7 @@ class DocheadTable(SingleTableView):
             Partners, Partners.PartnerF == DocHead.PartnerF
         ).outerjoin(
             Stores, Stores.StoreF == DocHead.MainStoreF
-        ).all()
+        ).order_by(-DocHead.CreateDate).all()
 
         return record
 
@@ -698,7 +698,6 @@ def doc_update(request, pk):
     instance = s.query(DocHead).filter(DocHead.id == pk)
 
     doc_head = instance.one()
-
     comment = doc_head.Comment
     user = doc_head.UserF
     partner = doc_head.PartnerF
