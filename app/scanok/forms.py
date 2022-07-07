@@ -87,3 +87,29 @@ class DocheadForm(forms.Form):
             ),
             Submit('submit', 'Apply')
         )
+
+
+class DocDetailsForm(forms.Form):
+
+    GoodF = forms.CharField(label='GoodF', required=False, max_length=30)
+    Count_Doc = forms.FloatField(label='Count_Doc', required=False)
+    Price = forms.FloatField(label='Price', required=False)
+    Spec_comment = forms.CharField(label='Comment', required=False, max_length=300)
+
+    def __init__(self, *args, **kwargs):
+        goods = tuple(kwargs.pop('GoodF'))
+
+        super().__init__(*args, **kwargs)
+        self.fields['GoodF'] = forms.ChoiceField(choices=goods, required=False, label='Name')
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Row(
+                Column('GoodF', wrapper_class='col-md-6', css_class='row-fluid'),
+                Column('Count_Doc', wrapper_class='col-md-6', css_class='row-fluid'),
+                Column('Price', wrapper_class='col-md-6', css_class='row-fluid'),
+            ),
+            Row(
+                Column('Spec_comment', wrapper_class='col-md-6', css_class='row-fluid'),
+            ),
+            Submit('submit', 'ADD')
+        )
