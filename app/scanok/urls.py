@@ -32,7 +32,9 @@ urlpatterns = [
     path('dochead/', scanok_views.DocheadTable.as_view(), name='dochead'),
     path('dochead/create/', scanok_views.doc_create, name='doc_create'),
     path('dochead/delete/<int:pk>/', scanok_views.doc_delete, name="dochead_delete"),
-    path('dochead/update/<int:pk>/', scanok_views.doc_update, name="dochead_update"),
+    path('dochead/update/<int:pk>/<int:page>/', scanok_views.doc_update, name="dochead_update"),
+
+    path('dochead/update/<int:pk>/add_detail', scanok_views.add_detail, name='add_detail'),
 
     path('partners/', scanok_views.Partner.as_view(), name='partners'),
     path('partners/create/', scanok_views.partner_create, name='partner_create'),

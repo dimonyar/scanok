@@ -6,6 +6,7 @@ from accounts.models import Device
 
 from django.conf import settings
 from django.contrib import messages
+from django.core.paginator import EmptyPage, Paginator
 from django.http import Http404, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.views.generic import ListView
@@ -13,9 +14,9 @@ from django.views.generic import ListView
 from django_tables2 import SingleTableView
 
 from scanok.epochtime import data_to_tact
-from scanok.forms import BarcodeForm, DocheadForm, GoodForm, PartnerForm, StoreForm, UserForm
+from scanok.forms import BarcodeForm, DocDetailsForm, DocheadForm, GoodForm, PartnerForm, StoreForm, UserForm
 from scanok.hashmd5 import str2hash
-from scanok.sqlclasstable import Barcode, DocHead, Good, Partners, Stores, User
+from scanok.sqlclasstable import Barcode, DocDetails, DocHead, Good, Partners, ScanHistory, Stores, User
 from scanok.tables import DocHeadTable
 from scanok.util import next_f
 
@@ -40,7 +41,6 @@ def conn_db(request):
 
 
 def good_barcode_list(request, pk=None):
-
     s = conn_db(request)  # noqa: VNE001
     if pk:
         query = s.query(Good, Barcode).join(
@@ -233,7 +233,6 @@ def barcode_create(request, pk):
 
 
 def barcode_update(request, pk):
-
     s = conn_db(request)  # noqa: VNE001
 
     query = s.query(Good.id, Barcode.GoodF, Barcode.BarcodeName, Barcode.Code, Barcode.Count).join(
@@ -277,7 +276,6 @@ def barcode_update(request, pk):
 
 
 def barcode_delete(request, pk):
-
     s = conn_db(request)  # noqa: VNE001
 
     instance = s.query(Good.id, Barcode.BarcodeName).join(
@@ -692,7 +690,7 @@ def doc_create(request):
     return render(request, 'doc_create.html', context={'form': form})
 
 
-def doc_update(request, pk):
+def doc_update(request, pk, page=1):
     s = conn_db(request)  # noqa: VNE001
 
     instance = s.query(DocHead).filter(DocHead.id == pk)
@@ -708,8 +706,46 @@ def doc_update(request, pk):
     discount = doc_head.Discount
 
     users = s.query(User.UserF, User.Name).all()
-    partners = s.query(Partners.PartnerF, Partners.NamePartner).order_by(-Partners.id)
-    stores = s.query(Stores.StoreF, Stores.NameStore).order_by(Stores.NameStore)
+    partners = s.query(Partners.PartnerF, Partners.NamePartner).filter(Partners.Deleted == 0).order_by(-Partners.id)
+    stores = s.query(Stores.StoreF, Stores.NameStore).filter(Stores.Deleted == 0).order_by(Stores.NameStore)
+
+    query = s.query(
+        DocDetails.GoodF,
+        Good.Name,
+        DocDetails.Price,
+        DocDetails.Count_Doc,
+        DocDetails.Count_Real,
+        ScanHistory,
+    ).join(
+        Good, DocDetails.GoodF == Good.GoodF
+    ).outerjoin(
+        ScanHistory, ScanHistory.DocDetailsF == DocDetails.DocDetailsF
+    ).filter(
+        DocDetails.DocHeadF == doc_head.DocHeadF
+    ).order_by(DocDetails.id)
+
+    query_list = []
+    for i in query:
+        key = ((i[0], i[1], i[2], i[3], i[4],), i[5])
+        query_list.append(key)
+
+    query_dict = {}
+    for key, value in query_list:
+        if query_dict.get(key):
+            query_dict[key].append(value)
+        else:
+            query_dict.update({key: [value]})
+
+    record = list(query_dict.items())
+
+    doc_details_list = record
+
+    paginator = Paginator(doc_details_list, 25)
+
+    try:
+        doc_details_list = paginator.page(page)
+    except EmptyPage:
+        doc_details_list = paginator.page(paginator.num_pages)
 
     if request.method == 'POST':
         form = DocheadForm(request.POST, UserF=users, PartnerF=partners, MainStoreF=stores)
@@ -760,4 +796,62 @@ def doc_update(request, pk):
 
         }, UserF=users, PartnerF=partners, MainStoreF=stores)
 
-    return render(request, 'doc_update.html', context={'form': form})
+    return render(request, 'doc_update.html', context={'form': form, 'doc_details': doc_details_list, 'pk': pk})
+
+
+def add_detail(request, pk):
+    s = conn_db(request)  # noqa: VNE001
+
+    doc_head = s.query(DocHead).filter(DocHead.id == pk).one()
+    doc_head_f = doc_head.DocHeadF
+    user = doc_head.UserF
+
+    goods = s.query(Good.GoodF, Good.Name).filter(Good.Deleted == 0).order_by(Good.Name)
+
+    if request.method == 'POST':
+        form = DocDetailsForm(request.POST, GoodF=goods)
+
+        if form.is_valid():
+
+            good_f = form.cleaned_data.get('GoodF')
+            count_doc = form.cleaned_data.get('Count_Doc')
+            price = form.cleaned_data.get('Price')
+            comment = form.cleaned_data.get('Spec_comment')
+            create_date = data_to_tact(datetime.now())
+
+            if not count_doc:
+                count_doc = 1
+
+            if not price:
+                price = s.query(Good.Price).filter(Good.GoodF == good_f).one()[0]
+
+            c1 = DocDetails(
+                DocHeadF=doc_head_f,
+                DocDetailsF=uuid.uuid4(),
+                Bad_price=0,
+                Price_problem=0,
+                Count_Doc=count_doc,
+                Count_Real=0,
+                CreateDate=create_date,
+                GoodF=good_f,
+                Hend_enter=0,
+                Price=price,
+                Expiration=0,
+                Spec_comment=comment,
+                UserF=user,
+                UpdatedFromTSD=0,
+                UpdateFrom1C=1,
+                Updated=1,
+                Deleted=0
+            )
+
+            s.add(c1)
+            s.commit()
+            s.close()
+
+            return HttpResponseRedirect(f'/scanok/dochead/update/{pk}/1/')
+
+    else:
+        form = DocDetailsForm(GoodF=goods)
+
+    return render(request, 'add_detail.html', context={'form': form})

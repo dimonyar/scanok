@@ -225,6 +225,7 @@ class DocHead(Base):
 class DocDetails(Base):
     __tablename__ = 'DocDetails'
 
+    id = Column(BigInteger, primary_key=True, autoincrement=True)  # noqa: VNE003, A003
     DocHeadF = Column(UNIQUEIDENTIFIER, ForeignKey('DocHead.DocHeadF'), nullable=False)
     DocDetailsF = Column(UNIQUEIDENTIFIER, nullable=False, primary_key=True)
     Bad_price = Column(BIT, nullable=False)
@@ -246,6 +247,6 @@ class DocDetails(Base):
     Field_2 = Column(String(200), nullable=True)
     Field_3 = Column(String(100), nullable=True)
     Field_4 = Column(String(50), nullable=True)
-    Update = Column(BIT, nullable=False)
+    Updated = Column(BIT, nullable=False)
     Deleted = Column(BIT, nullable=False)
     ScanHistory = relationship('ScanHistory')
