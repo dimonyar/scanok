@@ -3,7 +3,6 @@ from django.views.decorators.csrf import csrf_exempt
 
 from scanok import views as scanok_views
 
-
 app_name = 'scanok'
 
 urlpatterns = [
@@ -33,13 +32,16 @@ urlpatterns = [
     path('dochead/create/', scanok_views.doc_create, name='doc_create'),
     path('dochead/delete/<int:pk>/', scanok_views.doc_delete, name="dochead_delete"),
     path('dochead/update/<int:pk>/<int:page>/', scanok_views.doc_update, name="dochead_update"),
+    path('dochead/update/<int:pk>/<int:page>/search-barcode/', csrf_exempt(scanok_views.search_barcode),
+         name='search_barcode'),
 
-    path('dochead/update/<int:pk>/add_detail', scanok_views.add_detail, name='add_detail'),
+    path('dochead/update/<int:pk>/<int:page>/add_detail', scanok_views.add_detail, name='add_detail'),
+
+    path('dochead/update/<int:pk>/delete_detail/<int:plug>', scanok_views.detail_delete, name='detail_delete'),
 
     path('partners/', scanok_views.Partner.as_view(), name='partners'),
     path('partners/create/', scanok_views.partner_create, name='partner_create'),
     path('partners/delete/<int:pk>/', scanok_views.partner_delete, name="partner_delete"),
     path('partners/update/<int:pk>/', scanok_views.partner_update, name="partner_update"),
-
 
 ]

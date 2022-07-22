@@ -21,7 +21,7 @@ from scanok.tables import DocHeadTable
 from scanok.util import next_f
 
 from sqlalchemy import create_engine, or_
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.orm import sessionmaker
 
 
@@ -710,6 +710,7 @@ def doc_update(request, pk, page=1):
     stores = s.query(Stores.StoreF, Stores.NameStore).filter(Stores.Deleted == 0).order_by(Stores.NameStore)
 
     query = s.query(
+        DocDetails.id,
         DocDetails.GoodF,
         Good.Name,
         DocDetails.Price,
@@ -796,10 +797,15 @@ def doc_update(request, pk, page=1):
 
         }, UserF=users, PartnerF=partners, MainStoreF=stores)
 
-    return render(request, 'doc_update.html', context={'form': form, 'doc_details': doc_details_list, 'pk': pk})
+    return render(request, 'doc_update.html', context={
+        'form': form,
+        'doc_details': doc_details_list,
+        'pk': pk,
+        'page': page
+    })
 
 
-def add_detail(request, pk):
+def add_detail(request, pk, page=1, good_f=None):
     s = conn_db(request)  # noqa: VNE001
 
     doc_head = s.query(DocHead).filter(DocHead.id == pk).one()
@@ -825,33 +831,107 @@ def add_detail(request, pk):
             if not price:
                 price = s.query(Good.Price).filter(Good.GoodF == good_f).one()[0]
 
-            c1 = DocDetails(
-                DocHeadF=doc_head_f,
-                DocDetailsF=uuid.uuid4(),
-                Bad_price=0,
-                Price_problem=0,
-                Count_Doc=count_doc,
-                Count_Real=0,
-                CreateDate=create_date,
-                GoodF=good_f,
-                Hend_enter=0,
-                Price=price,
-                Expiration=0,
-                Spec_comment=comment,
-                UserF=user,
-                UpdatedFromTSD=0,
-                UpdateFrom1C=1,
-                Updated=1,
-                Deleted=0
-            )
+            instance = s.query(DocDetails).filter(DocDetails.DocHeadF == doc_head_f, DocDetails.GoodF == good_f)
 
-            s.add(c1)
-            s.commit()
-            s.close()
+            try:
+                detail = instance.one()
+                new_count = count_doc + detail.Count_Doc
+                instance.update({DocDetails.Count_Doc: new_count})
+                s.commit()
+                s.close()
+            except NoResultFound:
+                c1 = DocDetails(
+                    DocHeadF=doc_head_f,
+                    DocDetailsF=uuid.uuid4(),
+                    Bad_price=0,
+                    Price_problem=0,
+                    Count_Doc=count_doc,
+                    Count_Real=0,
+                    CreateDate=create_date,
+                    GoodF=good_f,
+                    Hend_enter=0,
+                    Price=price,
+                    Expiration=0,
+                    Spec_comment=comment,
+                    UserF=user,
+                    UpdatedFromTSD=0,
+                    UpdateFrom1C=1,
+                    Updated=1,
+                    Deleted=0
+                )
 
-            return HttpResponseRedirect(f'/scanok/dochead/update/{pk}/1/')
+                s.add(c1)
+                s.commit()
+                s.close()
+
+            return HttpResponseRedirect(f'/scanok/dochead/update/{pk}/{page}/')
 
     else:
-        form = DocDetailsForm(GoodF=goods)
+        form = DocDetailsForm(initial={'GoodF': good_f}, GoodF=goods)
 
     return render(request, 'add_detail.html', context={'form': form})
+
+
+def detail_delete(request, pk, plug):
+    s = conn_db(request)  # noqa: VNE001
+    instance = s.query(DocDetails).filter(DocDetails.id == plug)
+    if request.method == 'POST':
+        instance.delete()
+        s.commit()
+        s.close()
+        return HttpResponseRedirect(f'/scanok/dochead/update/{pk}/1/')
+    else:
+        return render(request, 'detail_delete.html', context={'detail': instance})
+
+
+def search_barcode(request, pk, page):
+    if request.method == 'POST':
+        search = json.loads(request.body).get('searchText')
+
+        request.session['entered_barcode'] = search
+
+        s = conn_db(request)  # noqa: VNE001
+        try:
+            good_f = s.query(Barcode.GoodF).filter(Barcode.BarcodeName == search).one()[0]
+
+            price = s.query(Good.Price).filter(Good.GoodF == good_f).one()[0]
+
+            doc_head = s.query(DocHead).filter(DocHead.id == pk).one()
+            doc_head_f = doc_head.DocHeadF
+            user = doc_head.UserF
+            create_date = data_to_tact(datetime.now())
+
+            try:
+                instance = s.query(DocDetails).filter(DocDetails.DocHeadF == doc_head_f, DocDetails.GoodF == good_f)
+                detail = instance.one()
+                new_count = 1 + detail.Count_Doc
+                instance.update({DocDetails.Count_Doc: new_count})
+                s.commit()
+                s.close()
+            except NoResultFound:
+                c1 = DocDetails(
+                    DocHeadF=doc_head_f,
+                    DocDetailsF=uuid.uuid4(),
+                    Bad_price=0,
+                    Price_problem=0,
+                    Count_Doc=1,
+                    Count_Real=0,
+                    CreateDate=create_date,
+                    GoodF=good_f,
+                    Hend_enter=0,
+                    Price=price,
+                    Expiration=0,
+                    UserF=user,
+                    UpdatedFromTSD=0,
+                    UpdateFrom1C=1,
+                    Updated=1,
+                    Deleted=0
+                )
+
+                s.add(c1)
+                s.commit()
+                s.close()
+
+            return JsonResponse({'good_f': good_f}, safe=False)
+        except NoResultFound:
+            return JsonResponse({'barcode': search}, safe=False)
