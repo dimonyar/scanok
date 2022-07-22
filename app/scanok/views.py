@@ -10,7 +10,6 @@ from django.core.paginator import EmptyPage, Paginator
 from django.http import Http404, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.views.generic import ListView
-from django.urls import reverse_lazy
 
 from django_tables2 import SingleTableView
 
@@ -798,7 +797,12 @@ def doc_update(request, pk, page=1):
 
         }, UserF=users, PartnerF=partners, MainStoreF=stores)
 
-    return render(request, 'doc_update.html', context={'form': form, 'doc_details': doc_details_list, 'pk': pk, 'page': page})
+    return render(request, 'doc_update.html', context={
+        'form': form,
+        'doc_details': doc_details_list,
+        'pk': pk,
+        'page': page
+    })
 
 
 def add_detail(request, pk, page=1, good_f=None):
@@ -931,7 +935,3 @@ def search_barcode(request, pk, page):
             return JsonResponse({'good_f': good_f}, safe=False)
         except NoResultFound:
             return JsonResponse({'barcode': search}, safe=False)
-
-
-
-
