@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Delete{% endblock %}
+{% block content %}
+{% for i in detail %}
+<p> Do you want to delete {{ i.DocDetailsF }} from Document? </p>
+{% endfor %}
+<form method="post">
+    {% csrf_token %}
+    <button type="submit">Delete</button>
+</form>
+
+
+
+{% endblock content %}
