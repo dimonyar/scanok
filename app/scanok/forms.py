@@ -111,5 +111,5 @@ class DocDetailsForm(forms.Form):
             Row(
                 Column('Spec_comment', wrapper_class='col-md-6', css_class='row-fluid'),
             ),
-            Submit('submit', 'ADD')
+            Submit('submit', 'APPLY')
         )

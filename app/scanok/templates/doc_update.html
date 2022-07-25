@@ -60,9 +60,9 @@
                     <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton2"
                             data-bs-toggle="dropdown" aria-expanded="false"></button>
                     <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
-                        <li><a class="dropdown-item" href="#">Edit</a>
+                        <li><a class="dropdown-item" href="{% url 'scanok:edit_detail' pk page row.0.0%}">Edit</a>
                         </li>
-                        <li><a class="dropdown-item" href="{% url 'scanok:detail_delete' pk row.0.0%}">Delete</a>
+                        <li><a class="dropdown-item" href="{% url 'scanok:detail_delete' pk page row.0.0%}">Delete</a>
                         </li>
                     </ul>
                 </div>

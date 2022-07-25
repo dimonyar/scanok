@@ -36,8 +36,9 @@ urlpatterns = [
          name='search_barcode'),
 
     path('dochead/update/<int:pk>/<int:page>/add_detail', scanok_views.add_detail, name='add_detail'),
-
-    path('dochead/update/<int:pk>/delete_detail/<int:plug>', scanok_views.detail_delete, name='detail_delete'),
+    path('dochead/update/<int:pk>/<int:page>/edit_detail/<int:plug>', scanok_views.update_detail, name='edit_detail'),
+    path('dochead/update/<int:pk>/<int:page>/delete_detail/<int:plug>', scanok_views.detail_delete,
+         name='detail_delete'),
 
     path('partners/', scanok_views.Partner.as_view(), name='partners'),
     path('partners/create/', scanok_views.partner_create, name='partner_create'),
