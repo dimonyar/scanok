@@ -872,14 +872,14 @@ def add_detail(request, pk, page=1, good_f=None):
     return render(request, 'add_detail.html', context={'form': form})
 
 
-def detail_delete(request, pk, plug):
+def detail_delete(request, pk, plug, page):
     s = conn_db(request)  # noqa: VNE001
     instance = s.query(DocDetails).filter(DocDetails.id == plug)
     if request.method == 'POST':
         instance.delete()
         s.commit()
         s.close()
-        return HttpResponseRedirect(f'/scanok/dochead/update/{pk}/1/')
+        return HttpResponseRedirect(f'/scanok/dochead/update/{pk}/{page}/')
     else:
         return render(request, 'detail_delete.html', context={'detail': instance})
 
@@ -935,3 +935,58 @@ def search_barcode(request, pk, page):
             return JsonResponse({'good_f': good_f}, safe=False)
         except NoResultFound:
             return JsonResponse({'barcode': search}, safe=False)
+
+
+def update_detail(request, pk, plug, page):
+    s = conn_db(request)  # noqa: VNE001
+
+    instance = s.query(DocDetails).filter(DocDetails.id == plug)
+
+    doc_details = instance.one()
+
+    good_f = doc_details.GoodF
+    count_doc = doc_details.Count_Doc
+    price = doc_details.Price
+    comment = doc_details.Spec_comment
+
+    goods = s.query(Good.GoodF, Good.Name).filter(Good.Deleted == 0).order_by(Good.Name)
+
+    if request.method == 'POST':
+        form = DocDetailsForm(request.POST, GoodF=goods)
+
+        if form.is_valid():
+
+            good_f = form.cleaned_data.get('GoodF')
+            count_doc = form.cleaned_data.get('Count_Doc')
+            price = form.cleaned_data.get('Price')
+            comment = form.cleaned_data.get('Spec_comment')
+
+            if not count_doc:
+                count_doc = 1
+
+            if not price:
+                price = s.query(Good.Price).filter(Good.GoodF == good_f).one()[0]
+
+            instance.update(
+                {
+                    DocDetails.GoodF: good_f,
+                    DocDetails.Count_Doc: count_doc,
+                    DocDetails.Price: price,
+                    DocDetails.Spec_comment: comment,
+                }
+            )
+
+            s.commit()
+            s.close()
+
+            return HttpResponseRedirect(f'/scanok/dochead/update/{pk}/{page}/')
+
+    else:
+        form = DocDetailsForm(initial={
+            'GoodF': good_f,
+            'Count_Doc': count_doc,
+            'Price': price,
+            'Spec_comment': comment
+        }, GoodF=goods)
+
+    return render(request, 'edit_detail.html', context={'form': form})
