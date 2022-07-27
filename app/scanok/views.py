@@ -7,7 +7,7 @@ from accounts.models import Device
 from django.conf import settings
 from django.contrib import messages
 from django.core.paginator import EmptyPage, Paginator
-from django.http import Http404, HttpResponseRedirect, JsonResponse
+from django.http import Http404, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.views.generic import ListView
 
@@ -670,7 +670,7 @@ def doc_create(request):
                 UserF=user,
                 BarcodeDocu=barcodedocu,
                 CreateDate=create_date,
-                DocStatus=0,
+                DocStatus=-1,
                 Discount=discount,
                 Deleted=0,
                 Updated=1,
@@ -704,6 +704,7 @@ def doc_update(request, pk, page=1):
     doctype_code = doc_head.DocType.code
     barcodedocu = doc_head.BarcodeDocu
     discount = doc_head.Discount
+    docstatus = doc_head.DocStatus
 
     users = s.query(User.UserF, User.Name).all()
     partners = s.query(Partners.PartnerF, Partners.NamePartner).filter(Partners.Deleted == 0).order_by(-Partners.id)
@@ -749,7 +750,7 @@ def doc_update(request, pk, page=1):
         doc_details_list = paginator.page(paginator.num_pages)
 
     if request.method == 'POST':
-        form = DocheadForm(request.POST, UserF=users, PartnerF=partners, MainStoreF=stores)
+        form = DocheadForm(request.POST, UserF=users, PartnerF=partners, MainStoreF=stores, DocStatus=docstatus)
 
         if form.is_valid():
             comment = form.cleaned_data.get('Comment')
@@ -795,13 +796,23 @@ def doc_update(request, pk, page=1):
             'AlternateStoreF': alternate_store,
             'UserF': user
 
-        }, UserF=users, PartnerF=partners, MainStoreF=stores)
+        }, UserF=users, PartnerF=partners, MainStoreF=stores, DocStatus=docstatus)
+        if docstatus >= 0:
+            form.fields['Comment'].widget.attrs['readonly'] = True
+            form.fields['BarcodeDocu'].widget.attrs['readonly'] = True
+            form.fields['Discount'].widget.attrs['readonly'] = True
+            form.fields['DocType'].disabled = True
+            form.fields['PartnerF'].disabled = True
+            form.fields['MainStoreF'].disabled = True
+            form.fields['AlternateStoreF'].disabled = True
+            form.fields['UserF'].disabled = True
 
     return render(request, 'doc_update.html', context={
         'form': form,
         'doc_details': doc_details_list,
         'pk': pk,
-        'page': page
+        'page': page,
+        'docstatus': docstatus
     })
 
 
@@ -990,3 +1001,19 @@ def update_detail(request, pk, plug, page):
         }, GoodF=goods)
 
     return render(request, 'edit_detail.html', context={'form': form})
+
+
+def doc_hold(request):
+    if request.method == 'POST':
+        id_changedoc = json.loads(request.body).get('id_changeDoc')
+        if id_changedoc:
+            s = conn_db(request)  # noqa: VNE001
+
+            instance = s.query(DocHead).filter(DocHead.id == id_changedoc)
+
+            instance.update({DocHead.DocStatus: 0})
+
+            s.commit()
+            s.close()
+
+    return HttpResponse(status=204)

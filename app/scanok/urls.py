@@ -34,6 +34,7 @@ urlpatterns = [
     path('dochead/update/<int:pk>/<int:page>/', scanok_views.doc_update, name="dochead_update"),
     path('dochead/update/<int:pk>/<int:page>/search-barcode/', csrf_exempt(scanok_views.search_barcode),
          name='search_barcode'),
+    path('dochead/doc_hold/', csrf_exempt(scanok_views.doc_hold), name='doc_hold'),
 
     path('dochead/update/<int:pk>/<int:page>/add_detail', scanok_views.add_detail, name='add_detail'),
     path('dochead/update/<int:pk>/<int:page>/edit_detail/<int:plug>', scanok_views.update_detail, name='edit_detail'),

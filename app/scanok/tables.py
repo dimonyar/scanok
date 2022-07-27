@@ -5,6 +5,9 @@ from scanok.templatetags.extra_teg import tact_to_data
 
 
 class DocHeadTable(tables.Table):
+    hold = tables.TemplateColumn(
+        template_name="doc_hold.html", verbose_name="", orderable=False
+    )
     DocType = tables.Column()
     Comment = tables.Column()
     NamePartner = tables.Column()

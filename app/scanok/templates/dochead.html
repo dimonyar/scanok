@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% load extra_teg %}
 {% load render_table from django_tables2 %}
 
@@ -19,5 +20,7 @@
     </div>
 </div>
 {% include 'includes/pagination.html' %}
+
+<script src="{% static 'js/doc_hold.js' %}"></script>
 
 {% endblock content %}

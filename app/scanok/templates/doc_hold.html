@@ -1,0 +1,9 @@
+{% if record.DocStatus >= 0 %}
+
+<input type="checkbox" name="hold" checked disabled>
+
+{% else %}
+
+<input type="checkbox" name="hold" value={{record.id}} onclick="cl()">
+
+{% endif %}
