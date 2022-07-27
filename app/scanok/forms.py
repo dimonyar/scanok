@@ -59,7 +59,10 @@ class DocheadForm(forms.Form):
         users = tuple(kwargs.pop('UserF'))
         partners = tuple(kwargs.pop('PartnerF'))
         stores = tuple(kwargs.pop('MainStoreF'))
+
+        docstatus = kwargs.pop('DocStatus')
         doctype = mch.DocHeadDocType.choices
+
         super().__init__(*args, **kwargs)
         self.fields['UserF'] = forms.ChoiceField(choices=users, required=False, label='User')
         self.fields['PartnerF'] = forms.ChoiceField(choices=partners, required=False, label='Partner')
@@ -68,25 +71,46 @@ class DocheadForm(forms.Form):
         self.fields['DocType'] = forms.ChoiceField(choices=doctype, required=False, label='DocType')
 
         self.helper = FormHelper()
-        self.helper.layout = Layout(
-            Row(
-                Column('Comment', wrapper_class='col-md-6', css_class='row-fluid'),
-                Column('DocType', wrapper_class='col-md-6', css_class='row-fluid'),
-            ),
-            Row(
-                Column('PartnerF', wrapper_class='col-md-6', css_class='row-fluid'),
-                Column('UserF', wrapper_class='col-md-6', css_class='row-fluid'),
-            ),
-            Row(
-                Column('MainStoreF', wrapper_class='col-md-6', css_class='row-fluid'),
-                Column('AlternateStoreF', wrapper_class='col-md-6', css_class='row-fluid'),
-            ),
-            Row(
-                Column('Discount', wrapper_class='col-md-6', css_class='row-fluid'),
-                Column('BarcodeDocu', wrapper_class='col-md-6', css_class='row-fluid'),
-            ),
-            Submit('submit', 'Apply')
-        )
+        if docstatus < 0:
+            self.helper.layout = Layout(
+                Row(
+                    Column('Comment', wrapper_class='col-md-6', css_class='row-fluid'),
+                    Column('DocType', wrapper_class='col-md-6', css_class='row-fluid'),
+                ),
+                Row(
+                    Column('PartnerF', wrapper_class='col-md-6', css_class='row-fluid'),
+                    Column('UserF', wrapper_class='col-md-6', css_class='row-fluid'),
+                ),
+                Row(
+                    Column('MainStoreF', wrapper_class='col-md-6', css_class='row-fluid'),
+                    Column('AlternateStoreF', wrapper_class='col-md-6', css_class='row-fluid'),
+                ),
+                Row(
+                    Column('Discount', wrapper_class='col-md-6', css_class='row-fluid'),
+                    Column('BarcodeDocu', wrapper_class='col-md-6', css_class='row-fluid'),
+                ),
+
+                Submit('submit', 'Apply')
+            )
+        else:
+            self.helper.layout = Layout(
+                Row(
+                    Column('Comment', wrapper_class='col-md-6', css_class='row-fluid'),
+                    Column('DocType', wrapper_class='col-md-6', css_class='row-fluid'),
+                ),
+                Row(
+                    Column('PartnerF', wrapper_class='col-md-6', css_class='row-fluid'),
+                    Column('UserF', wrapper_class='col-md-6', css_class='row-fluid'),
+                ),
+                Row(
+                    Column('MainStoreF', wrapper_class='col-md-6', css_class='row-fluid'),
+                    Column('AlternateStoreF', wrapper_class='col-md-6', css_class='row-fluid'),
+                ),
+                Row(
+                    Column('Discount', wrapper_class='col-md-6', css_class='row-fluid'),
+                    Column('BarcodeDocu', wrapper_class='col-md-6', css_class='row-fluid'),
+                )
+            )
 
 
 class DocDetailsForm(forms.Form):

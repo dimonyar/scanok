@@ -3,7 +3,8 @@ from django.db import models
 
 class DocHeadDocStatus(models.IntegerChoices):
 
-    NEW = 0, 'Новый'
+    New = -1, 'Новый'
+    Out = 0, 'отправлен на ТСД'
     Inpogress = 1, 'В работе'
     Completed = 2, 'Завершен'
     Completed_with_errors = 3, 'Завершен с ошибками'

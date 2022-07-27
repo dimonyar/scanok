@@ -9,29 +9,31 @@
     {% crispy form %}
 </form>
 
-<hr size="3" , color=black>
+<hr size="3" color=black>
 
 <div>
-    <table style="width: 100%">
-        <tr>
-            <td>
-                <div>
-                    <p>
-                    <form action="{% url 'scanok:add_detail' pk page%}">
-                        <button class="btn btn-secondary">Add Details</button>
-                    </form>
-                    </p>
-                </div>
-            </td>
-            <td align="right">
-                <div class="col-md-8">
-                    <div class="form-group">
-                        <input type="text" class="form-control" id="Barcode" placeholder="Barcode">
+    {% if docstatus < 0 %}
+        <table style="width: 100%">
+            <tr>
+                <td>
+                    <div>
+                        <p>
+                        <form action="{% url 'scanok:add_detail' pk page%}">
+                            <button class="btn btn-secondary">Add Details</button>
+                        </form>
+                        </p>
                     </div>
-                </div>
-            </td>
-        </tr>
-    </table>
+                </td>
+                <td align="right">
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="Barcode" placeholder="Barcode" autofocus>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    {% endif %}
 
 
     <table class="table">
@@ -42,7 +44,9 @@
             <th scope="col">Price</th>
             <th scope="col">Count_Doc</th>
             <th scope="col">Count_Real</th>
+            {% if docstatus < 0 %}
             <th scope="col"></th>
+            {% endif %}
         </tr>
 
         </thead>
@@ -55,6 +59,7 @@
             <td align="right">{{ row.0.3|floatformat:2 }}</td>
             <td align="center">{{ row.0.4 }}</td>
             <td align="center">{{ row.0.5 }}</td>
+            {% if docstatus < 0 %}
             <td>
                 <div class="dropdown">
                     <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton2"
@@ -67,6 +72,7 @@
                     </ul>
                 </div>
             </td>
+            {% endif %}
         </tr>
 
         <tbody id="{{ row.0.0 }}" class="collapse">
