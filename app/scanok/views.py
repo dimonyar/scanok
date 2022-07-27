@@ -55,10 +55,7 @@ def good_barcode_list(request, pk=None):
 
     query_dict = {}
     for key, value in query:
-        if query_dict.get(key):
-            query_dict[key].append(value)
-        else:
-            query_dict.update({key: [value]})
+        query_dict.setdefault(key, []).append(value)
 
     record = list(query_dict.items())
 
@@ -641,8 +638,10 @@ def doc_create(request):
     partners = s.query(Partners.PartnerF, Partners.NamePartner).order_by(-Partners.id)
     stores = s.query(Stores.StoreF, Stores.NameStore).order_by(Stores.NameStore)
 
+    docstatus = -1
+
     if request.method == 'POST':
-        form = DocheadForm(request.POST, UserF=users, PartnerF=partners, MainStoreF=stores)
+        form = DocheadForm(request.POST, UserF=users, PartnerF=partners, MainStoreF=stores, DocStatus=docstatus)
 
         if form.is_valid():
             comment = form.cleaned_data.get('Comment')
@@ -670,7 +669,7 @@ def doc_create(request):
                 UserF=user,
                 BarcodeDocu=barcodedocu,
                 CreateDate=create_date,
-                DocStatus=-1,
+                DocStatus=docstatus,
                 Discount=discount,
                 Deleted=0,
                 Updated=1,
@@ -685,7 +684,12 @@ def doc_create(request):
             return HttpResponseRedirect('/scanok/dochead/')
 
     else:
-        form = DocheadForm(initial={'Discount': 0.0}, UserF=users, PartnerF=partners, MainStoreF=stores)
+        form = DocheadForm(
+            initial={'Discount': 0.0},
+            UserF=users,
+            PartnerF=partners,
+            MainStoreF=stores,
+            DocStatus=docstatus)
 
     return render(request, 'doc_create.html', context={'form': form})
 
