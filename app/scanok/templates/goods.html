@@ -20,17 +20,35 @@
             </p>
         </div>
 
-        <div class="col-md-8">
-            <div class="form-group">
-                <input type="text" class="form-control" id="searchField" placeholder="Search">
-            </div>
-        </div>
+
+        <table style="width: 100%">
+            <tr>
+                <td>
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="searchField" placeholder="Search">
+                        </div>
+                    </div>
+
+                </td>
+                <td align="right">
+                    <div>
+                        <p>
+                        <form action="{% url 'scanok:export_goods' %}">
+                            <button class="btn btn-secondary">Export Excel</button>
+                        </form>
+                        </p>
+                    </div>
+                </td>
+            </tr>
+        </table>
+
 
         <div class="app-table">
             <table class="table">
                 <thead class="thead-light">
                 <th scope="col" width="10%">GoodF</th>
-                <th scope="col" >Name</th>
+                <th scope="col">Name</th>
                 <th scope="col" width="10%">Unit</th>
                 <th scope="col" width="15%">Price</th>
                 <th scope="col" width="5%"></th>
@@ -98,7 +116,7 @@
             <table class="table">
                 <thead class="thead-light">
                 <th scope="col" width="10%">GoodF</th>
-                <th scope="col" >Name</th>
+                <th scope="col">Name</th>
                 <th scope="col" width="10%">Unit</th>
                 <th scope="col" width="15%">Price</th>
                 <th scope="col" width="5%"></th>

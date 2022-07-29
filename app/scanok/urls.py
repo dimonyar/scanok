@@ -1,7 +1,9 @@
 from django.urls import path
 from django.views.decorators.csrf import csrf_exempt
 
+from scanok import excel as scanok_excel
 from scanok import views as scanok_views
+
 
 app_name = 'scanok'
 
@@ -17,6 +19,8 @@ urlpatterns = [
     path('goods/update_barcode/<int:pk>/', scanok_views.barcode_update, name='update_barcode'),
     path('goods/delete_barcode/<int:pk>/', scanok_views.barcode_delete, name='delete_barcode'),
     path('goods/assign_barcode/<int:pk>/', scanok_views.barcode_assign, name='assign_barcode'),
+
+    path('goods/export', scanok_excel.export_goods, name='export_goods'),
 
     path('stores/', scanok_views.Store.as_view(), name='stores'),
     path('stores/create/', scanok_views.store_create, name='store_create'),
@@ -45,5 +49,7 @@ urlpatterns = [
     path('partners/create/', scanok_views.partner_create, name='partner_create'),
     path('partners/delete/<int:pk>/', scanok_views.partner_delete, name="partner_delete"),
     path('partners/update/<int:pk>/', scanok_views.partner_update, name="partner_update"),
+
+
 
 ]
