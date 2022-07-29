@@ -43,13 +43,13 @@ def conn_db(request):
 def good_barcode_list(request, pk=None):
     s = conn_db(request)  # noqa: VNE001
     if pk:
-        query = s.query(Good, Barcode).join(
+        query = s.query(Good, Barcode).outerjoin(
             Barcode, Barcode.GoodF == Good.GoodF
         ).filter(
             Good.id == pk
         )
     else:
-        query = s.query(Good, Barcode).join(
+        query = s.query(Good, Barcode).outerjoin(
             Barcode, Barcode.GoodF == Good.GoodF
         ).order_by(-Good.id)
 
