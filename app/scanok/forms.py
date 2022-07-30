@@ -137,3 +137,55 @@ class DocDetailsForm(forms.Form):
             ),
             Submit('submit', 'APPLY')
         )
+
+
+class SettingXls(forms.Form):
+    name_column = [
+        ('Code', 'Код'),
+        ('Name', 'Наименование'),
+        ('Unit', 'Ед.изм.'),
+        ('Price', 'Цена'),
+        ('Barcode', 'Штрихкод'),
+        ('Article', 'Артикул'),
+        ('Qty per pack', 'Кол-во в упаковке')
+    ]
+
+    Column1 = forms.ChoiceField(choices=name_column, required=False, label='Column1')
+    Column2 = forms.ChoiceField(choices=name_column, required=False, label='Column2')
+    Column3 = forms.ChoiceField(choices=name_column, required=False, label='Column3')
+    Column4 = forms.ChoiceField(choices=name_column, required=False, label='Column4')
+    Column5 = forms.ChoiceField(choices=name_column, required=False, label='Column5')
+    Column6 = forms.ChoiceField(choices=name_column, required=False, label='Column6')
+    Column7 = forms.ChoiceField(choices=name_column, required=False, label='Column7')
+    file_name = forms.CharField(label='File Name', required=True, max_length=20)
+    sheet_name = forms.CharField(label='Sheet Name', required=True, max_length=20)
+    startrow = forms.IntegerField(label='Skip Row', required=True, min_value=0)
+    startcol = forms.IntegerField(label='Skip Col', required=True, min_value=0)
+    header = forms.BooleanField(label='Use Header', required=False)
+
+    def __init__(self, *args, **kwargs):
+
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+
+            Row(
+                Column('file_name', wrapper_class='col-md-6', css_class='row-fluid'),
+                Column('sheet_name', wrapper_class='col-md-6', css_class='row-fluid'),
+                Column('startrow', wrapper_class='col-md-6', css_class='row-fluid'),
+                Column('startcol', wrapper_class='col-md-6', css_class='row-fluid'),
+            ),
+            Row(
+                Column('header', wrapper_class='col-md-6', css_class='row-fluid'),
+            ),
+            Row(
+                Column('Column1', wrapper_class='col-md-6', css_class='row-fluid'),
+                Column('Column2', wrapper_class='col-md-6', css_class='row-fluid'),
+                Column('Column3', wrapper_class='col-md-6', css_class='row-fluid'),
+                Column('Column4', wrapper_class='col-md-6', css_class='row-fluid'),
+                Column('Column5', wrapper_class='col-md-6', css_class='row-fluid'),
+                Column('Column6', wrapper_class='col-md-6', css_class='row-fluid'),
+                Column('Column7', wrapper_class='col-md-6', css_class='row-fluid'),
+            ),
+            Submit('submit', 'APPLY')
+        )

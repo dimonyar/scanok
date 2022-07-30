@@ -21,6 +21,7 @@ urlpatterns = [
     path('goods/assign_barcode/<int:pk>/', scanok_views.barcode_assign, name='assign_barcode'),
 
     path('goods/export', scanok_excel.export_goods, name='export_goods'),
+    path('goods/settings_xls', scanok_excel.settings_xls, name='settings_xls'),
 
     path('stores/', scanok_views.Store.as_view(), name='stores'),
     path('stores/create/', scanok_views.store_create, name='store_create'),
